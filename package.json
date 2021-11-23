@@ -1,0 +1,22 @@
+{
+  "name": "jackal",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "app.js",
+  "license": "MIT",
+  "dependencies": {
+    "@gonetone/get-youtube-id-by-url": "^1.0.0",
+    "cli-progress": "^3.9.1",
+    "commander": "^8.3.0",
+    "dotenv": "^10.0.0",
+    "execa": "^6.0.0",
+    "ffmpeg": "^0.0.4",
+    "fluent-ffmpeg": "^2.1.2",
+    "googleapis": "^91.0.0",
+    "mustache": "^4.2.0",
+    "node-telegram-bot-api": "^0.54.0",
+    "uuid": "^8.3.2",
+    "ytdl-core": "^4.9.1"
+  },
+  "devDependencies": {}
+}
