@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
+dotenv.config()
 
 import './src/cli.js'
 
-dotenv.config()

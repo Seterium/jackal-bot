@@ -1,16 +1,21 @@
-import { Command } from 'commander/esm.mjs';
-
 import fs from 'fs'
 import ytdl from 'ytdl-core'
-import cliProgress from 'cli-progress'
-import ffmpeg from 'fluent-ffmpeg'
+import dotenv from 'dotenv'
 import { execa } from 'execa'
+// import mustache from 'mustache';
 import { v4 as uuid } from 'uuid'
+import ffmpeg from 'fluent-ffmpeg'
 import { google } from 'googleapis'
+import cliProgress from 'cli-progress'
+import { Command } from 'commander/esm.mjs';
+import TelegramBotApi from 'node-telegram-bot-api';
 import getYouTubeIdByUrl from '@gonetone/get-youtube-id-by-url'
-import mustache from 'mustache';
+import PrettyError from 'pretty-error'
+
+dotenv.config()
 
 const program = new Command()
+const logger = new PrettyError()
 
 program
   .command('download')
@@ -93,7 +98,7 @@ program
       video: `./public/temp/${uuid()}.mp4`,
       audio: `./public/temp/${uuid()}.mp4`,
       merged: `./public/temp/${uuid()}.mp4`,
-      result: `./public//${uuid()}.mp4`,
+      result: `./public/results/${uuid()}.mp4`,
     }
 
     const started = Date.now()
@@ -336,19 +341,134 @@ program
   })
 
 program
+  .command('split')
+  .description('Split video to chunks')
+  .action(async () => {
+    const source = `${process.env.PWD}/public/video.mp4`
+
+    const { format } = await new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(source, (error, meta) => {
+        if (error) {
+          reject(error)
+        }
+  
+        resolve(meta)
+      })
+    })
+
+    const { duration } = format
+
+    // Main splitting arg
+    const maxDuration = 60
+
+    const partsCount = Math.ceil(duration / maxDuration)
+    const lastPartLength = +(duration - ((partsCount - 1) * maxDuration)).toFixed(3)
+
+    console.log()
+    console.log(`Source duration: ${duration} s.`)
+    console.log(`Split size: ${maxDuration} s.`)
+    console.log(`Parts count: ${partsCount}`)
+    console.log(`Last part length: ${lastPartLength} s.`)
+    console.log()
+
+    for (let i = 0; i < partsCount; i += 1) {
+      const start = i * maxDuration
+      const duration = i + 1 === partsCount
+        ? lastPartLength
+        : maxDuration
+
+      await new Promise(resolve => {
+        ffmpeg(source)
+          .setStartTime(start)
+          .setDuration(duration)
+          .output(`${process.env.PWD}/public/splitted/part-${i + 1}.mp4`)
+          .on('end', () => resolve())
+          .on('error', console.log)
+          .run()
+      })
+
+      console.log(`Done [${i + 1}/${partsCount}]`)
+    }
+  })
+
+program
+  .command('set-bot-commands')
+  .description('Set bot commands')
+  .action(async () => {
+    const bot = new TelegramBotApi(process.env.BOT_TOKEN, {
+      polling: false
+    })
+
+    const commands = [
+      {
+        command: 'start',
+        description: 'Start bot'
+      },
+      {
+        command: 'help',
+        description: 'Show help for available commands'
+      },
+      {
+        command: 'channels',
+        description: 'Get a list of available channels'
+      }
+    ]
+
+    try {
+      const result = await bot.setMyCommands(null)
+    } catch (error) {
+      console.log('Error installing bot commands\r\n')
+      console.log(logger.render(error))
+    }
+    
+    return
+  })
+
+program
+  .command('bot')
+  .description('Bot testing command')
+  .action(async () => {
+    const bot = new TelegramBotApi(process.env.BOT_TOKEN, {
+      polling: true
+    })
+    
+
+    // bot.sendMessage(process.env.TEST_CHAT, 'Keyboard', {
+    //   reply_markup: {
+    //     inline_keyboard: [
+    //       [
+    //         {
+    //           text: 'Button 1 text',
+    //           callback_data: 'action1[#]param1,param2,param3'
+    //         }
+    //       ],
+    //       [
+    //         {
+    //           text: 'Button 2 text',
+    //           callback_data: 'action2[#]param1,param2,param3'
+    //         }
+    //       ]
+    //     ]
+    //   }
+    // })
+  })
+
+
+
+program
   .command('test')
   .description('Features testing command')
   .action(async () => {
-    const template = fs.readFileSync(`${process.env.PWD}/locales/start.html`, {
-      encoding: 'utf8',
-      flag: 'r'
-    })
+    const parseCallbackQuery = query => {
+      const [ action, stringifyParams ] = query.split('||')
 
-    const message = mustache.render(template, {
-      username: 'Leo'
-    })
+      return {
+        action,
+        params: stringifyParams.split('|')
+      }
+    }
 
-    console.log(message)
+    console.log(parseCallbackQuery('action2||param1|param2|param3'))
   })
 
 program.parse(process.argv)
