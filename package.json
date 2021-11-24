@@ -2,8 +2,14 @@
   "name": "jackal",
   "type": "module",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "index.js",
   "license": "MIT",
+  "bin": {
+    "ace": "ace.js"
+  },
+  "imports": {
+    "##/*": "./*"
+  },
   "dependencies": {
     "@gonetone/get-youtube-id-by-url": "^1.0.0",
     "cli-progress": "^3.9.1",

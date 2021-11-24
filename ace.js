@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import fs from 'fs'
 import ytdl from 'ytdl-core'
 import dotenv from 'dotenv'
@@ -8,7 +10,7 @@ import ffmpeg from 'fluent-ffmpeg'
 import { google } from 'googleapis'
 import cliProgress from 'cli-progress'
 import { Command } from 'commander/esm.mjs';
-import TelegramBotApi from 'node-telegram-bot-api';
+// import TelegramBotApi from 'node-telegram-bot-api';
 import getYouTubeIdByUrl from '@gonetone/get-youtube-id-by-url'
 import PrettyError from 'pretty-error'
 
@@ -395,44 +397,43 @@ program
   .command('set-bot-commands')
   .description('Set bot commands')
   .action(async () => {
-    const bot = new TelegramBotApi(process.env.BOT_TOKEN, {
-      polling: false
-    })
+    // const bot = new TelegramBotApi(process.env.BOT_TOKEN, {
+    //   polling: false
+    // })
 
-    const commands = [
-      {
-        command: 'start',
-        description: 'Start bot'
-      },
-      {
-        command: 'help',
-        description: 'Show help for available commands'
-      },
-      {
-        command: 'channels',
-        description: 'Get a list of available channels'
-      }
-    ]
+    // const commands = [
+    //   {
+    //     command: 'start',
+    //     description: 'Start bot'
+    //   },
+    //   {
+    //     command: 'help',
+    //     description: 'Show help for available commands'
+    //   },
+    //   {
+    //     command: 'channels',
+    //     description: 'Get a list of available channels'
+    //   }
+    // ]
 
-    try {
-      const result = await bot.setMyCommands(null)
-    } catch (error) {
-      console.log('Error installing bot commands\r\n')
-      console.log(logger.render(error))
-    }
+    // try {
+    //   const result = await bot.setMyCommands(null)
+    // } catch (error) {
+    //   console.log('Error installing bot commands\r\n')
+    //   console.log(logger.render(error))
+    // }
     
-    return
+    // return
   })
 
 program
   .command('bot')
   .description('Bot testing command')
   .action(async () => {
-    const bot = new TelegramBotApi(process.env.BOT_TOKEN, {
-      polling: true
-    })
+    // const bot = new TelegramBotApi(process.env.BOT_TOKEN, {
+    //   polling: true
+    // })
     
-
     // bot.sendMessage(process.env.TEST_CHAT, 'Keyboard', {
     //   reply_markup: {
     //     inline_keyboard: [
@@ -452,8 +453,6 @@ program
     //   }
     // })
   })
-
-
 
 program
   .command('test')
