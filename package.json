@@ -1,14 +1,17 @@
 {
-  "name": "jackal",
+  "name": "jackal-bot",
   "type": "module",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "jackal.js",
   "license": "MIT",
+  "scripts": {
+    "dev": "nodemon jackal.js"
+  },
   "bin": {
-    "ace": "ace.js"
+    "jc": "jc.js"
   },
   "imports": {
-    "##/*": "./*"
+    "#@/*": "./*"
   },
   "dependencies": {
     "@gonetone/get-youtube-id-by-url": "^1.0.0",
@@ -20,11 +23,13 @@
     "fluent-ffmpeg": "^2.1.2",
     "googleapis": "^91.0.0",
     "mustache": "^4.2.0",
-    "node-telegram-bot-api": "^0.54.0",
     "pretty-error": "^4.0.0",
+    "qs": "^6.10.1",
     "telegraf": "^4.4.2",
     "uuid": "^8.3.2",
     "ytdl-core": "^4.9.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
 }
