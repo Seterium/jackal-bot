@@ -1,11 +1,11 @@
-export default commands = [
+export const commands = [
   {
     command: 'channels',
-    description: 'Отобразить список доступных каналов'
+    description: 'Cписок доступных каналов'
   },
 ]
 
-export default channels = [
+export const channels = [
   {
     id: 'CHANNEL_ID',
     name: 'CHANNEL_NAME'

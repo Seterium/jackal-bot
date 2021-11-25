@@ -1,5 +1,5 @@
-import queryEncode from '#@/src/utils/helpers/queryEncode.js'
-import locale from '#@/src/utils/helpers/locale.js'
+import queryEncode from '#@/utils/helpers/queryEncode.js'
+import locale from '#@/utils/helpers/locale.js'
 
 export default context => {
   const text = locale('commands/start', {

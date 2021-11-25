@@ -1,7 +1,7 @@
 import { Telegraf } from 'telegraf'
 
-import queryDecode from '#@/src/utils/helpers/queryDecode.js'
-import locale from '#@/src/utils/helpers/locale.js'
+import queryDecode from '#@/utils/helpers/queryDecode.js'
+import locale from '#@/utils/helpers/locale.js'
 
 import commands from './commands/_index.js'
 import actions from './actions/_index.js'

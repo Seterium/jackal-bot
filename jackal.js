@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import JackalBot from '#@/src/bot/JackalBot.js'
+import JackalBot from '#@/bot/JackalBot.js'
 
 dotenv.config()
 
