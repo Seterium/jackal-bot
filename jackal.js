@@ -5,9 +5,15 @@ dotenv.config()
 
 const jackal = new JackalBot()
 
-jackal.command('start')
-jackal.command('help')
-jackal.command('channels')
+jackal.command('start', 'getStart')
+jackal.command('help', 'getHelp')
+jackal.command('channels', 'getChannels')
 
-jackal.action('actionStart')
-jackal.action('actionHelp')
+jackal.command('url', 'getVideoByUrl', [
+  'url'
+])
+
+jackal.command('search', 'getSearchResults')
+
+// jackal.action('actionStart')
+// jackal.action('actionHelp')

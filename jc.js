@@ -10,7 +10,7 @@ const cli = new Command()
 cli
   .command('test')
   .description('Test command')
-  .action(controllers.test)
+  .action(controllers.runTestCommand)
 
 cli
   .command('yt-id')
@@ -23,6 +23,6 @@ cli
   .description('Update bot commands list from utils/contants file')
   .action(controllers.setBotCommands)
 
-console.log('\r\nJackal bot CLI\r\n')
+console.log()
 
 cli.parse(process.argv)

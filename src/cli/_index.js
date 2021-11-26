@@ -1,9 +1,9 @@
-import test from './test.js'
+import runTestCommand from './runTestCommand.js'
 import getChannelId from './getChannelId.js'
 import setBotCommands from './setBotCommands.js'
 
 export default {
-  test,
+  runTestCommand,
   getChannelId,
-  setBotCommands,
+  setBotCommands
 }

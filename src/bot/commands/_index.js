@@ -1,9 +1,13 @@
-import start from './start.js'
-import help from './help.js'
-import channels from './channels.js'
+import getStart from './getStart.js'
+import getHelp from './getHelp.js'
+import getChannels from './getChannels.js'
+import getVideoByUrl from './getVideoByUrl.js'
+import getSearchResults from './getSearchResults.js'
 
 export default {
-  start,
-  help,
-  channels
+  getStart,
+  getHelp,
+  getChannels,
+  getVideoByUrl,
+  getSearchResults
 }
