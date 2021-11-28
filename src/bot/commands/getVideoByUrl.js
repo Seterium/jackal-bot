@@ -1,30 +1,17 @@
-import qs from 'qs'
-import URLParse from 'url-parse'
+import ytdl from 'ytdl-core'
+
+import getLocale from '#@/utils/helpers/getLocale.js'
 
 export default {
-  handler (context, { url }) {
-    const isFullUrl = url.indexOf('youtube.com') !== -1
-    const isShortUrl = url.indexOf('youtu.be') !== -1
-
-    if (!isFullUrl && !isShortUrl) {
-      console.log('Not Youtube URL')
-
-      return
-    }
-
+  async handler (context, { url }) {
     let id
-    const { pathname, query } = new URLParse(url)
 
     try {
-      id = isFullUrl
-        ? qs.parse(query.substring(1, query.length)).v
-        : pathname.substring(1, url.length)
+      id = ytdl.getURLVideoID(url)
     } catch (error) {
-      console.log('Getting ID fron URL error')
-
-      return
+      return context.reply(getLocale('commands/url/errors/invalid'))
     }
-
-    console.log({ id })
+    
+    context.reply(`Video ID: ${id}`)
   }
 }

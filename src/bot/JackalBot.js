@@ -1,17 +1,26 @@
 import { Telegraf } from 'telegraf'
-import qs from 'qs'
 
 import getLocale from '#@/utils/helpers/getLocale.js'
 
 import commands from './commands/_index.js'
 import actions from './actions/_index.js'
 
+import { allowedUsersIds } from '#@/utils/constants.js'
+
 export default class JackalBot {
+  telegraf = null
+
+  actions = {}
+
   constructor() {
     this.telegraf = new Telegraf(process.env.BOT_TOKEN)
 
     this.telegraf.on('callback_query', context => {
-      const { action, params } = this.decodeQuery(context.update.callback_query.data)
+      if (!allowedUsersIds.includes(context.update.callback_query.from.id)) {
+        return
+      }
+
+      const [ action, ...params ] = context.update.callback_query.data.split('|')
 
       if (!this.actions[action]) {
         console.error(`Handler not found for action: ${action}`)
@@ -19,7 +28,12 @@ export default class JackalBot {
         return
       }
 
-      this.actions[action](context, params)
+      if (!this.actions[action].noAutoanswer) {
+        context.answerCbQuery()
+      }
+      
+      
+      this.actions[action].handler(context, params)
     })
 
     this.telegraf.launch()
@@ -36,6 +50,10 @@ export default class JackalBot {
     }
 
     this.telegraf.command(name, context => {
+      if (!allowedUsersIds.includes(context.update.message.from.id)) {
+        return
+      }
+
       const params = {}
       const { entities } = context.update.message
 
@@ -64,20 +82,11 @@ export default class JackalBot {
     })
   }
 
-  action(name, controller) {
-    if (!actions[controller]) {
-      throw new Error(`Controller "${controller}" for action "${name}" not found`)
+  action(name) {
+    if (!actions[name]) {
+      throw new Error(`Controller for action '${name}' not found`)
     }
 
-    this.actions[name] = actions[controller].handler
-  }
-
-  decodeQuery(query) {
-    const { a: action, ...params } = qs.parse(query)
-
-    return {
-      action,
-      params
-    }
+    this.actions[name] = actions[name]
   }
 }
