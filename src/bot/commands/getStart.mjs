@@ -1,7 +1,9 @@
 import getLocale from '#@/utils/helpers/getLocale.js'
 
 export default {
-  handler(context) {
+  name: 'start',
+
+  async handler(context) {
     const text = getLocale('commands/start', {
       username: context.update.message.from.username
     })

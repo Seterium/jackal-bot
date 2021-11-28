@@ -3,8 +3,12 @@ import ytch from 'yt-channel-info'
 import getLocale from '#@/utils/helpers/getLocale.js'
 
 export default {
+  name: 'getChannel',
+  
+  autoanswer: false,
+
   async handler (context, [ id ]) {
-    context.answerCbQuery()
+    context.answerCbQuery('Загружаю данные канала')
 
     const { author, authorBanners, description = '' } = await ytch.getChannelInfo(id)
     const { items } = await ytch.getChannelVideos(id)

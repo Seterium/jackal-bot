@@ -1,92 +1,128 @@
 import { Telegraf } from 'telegraf'
+import importDirectory from 'esm-import-directory'
 
 import getLocale from '#@/utils/helpers/getLocale.js'
 
-import commands from './commands/_index.js'
-import actions from './actions/_index.js'
-
 import { allowedUsersIds } from '#@/utils/constants.js'
 
-export default class JackalBot {
-  telegraf = null
+export default {
+  telegraf: null,
 
-  actions = {}
+  async init () {
+    console.log('\r\n[JCB] Initialize Jackal bot system\r\n')
 
-  constructor() {
     this.telegraf = new Telegraf(process.env.BOT_TOKEN)
 
-    this.telegraf.on('callback_query', context => {
-      if (!allowedUsersIds.includes(context.update.callback_query.from.id)) {
-        return
-      }
+    try {
+      await this.initCommands()
 
-      const [ action, ...params ] = context.update.callback_query.data.split('|')
+      console.log('[JCB] Commands system initialized')
+    } catch (error) {
+      console.log('[JCB] Commands system initialization error')
 
-      if (!this.actions[action]) {
-        console.error(`Handler not found for action: ${action}`)
+      console.error(error)
 
-        return
-      }
+      return
+    }
+    
+    
+    try {
+      await this.initActions()
 
-      if (!this.actions[action].noAutoanswer) {
-        context.answerCbQuery()
-      }
-      
-      
-      this.actions[action].handler(context, params)
-    })
+      console.log('[JCB] Actions system initialized')
+    } catch (error) {
+      console.log('[JCB] Actions system initialization error')
+
+      console.error(error)
+
+      return
+    }
+    
 
     this.telegraf.launch()
 
     process.once('SIGINT', () => this.telegraf.stop('SIGINT'))
     process.once('SIGTERM', () => this.telegraf.stop('SIGTERM'))
 
+    console.log()
     console.log(getLocale('jackal'))
-  }
+  },
 
-  command(name, controller, keys = []) {
-    if (!commands[controller]) {
-      throw new Error(`Controller "${controller}" for command "${name}" not found`)
+  async initCommands() {
+    const commands = await importDirectory(`${process.env.PWD}/src/bot/commands`)
+
+    const duplicates = commands.map(({ name }) => name).filter((e, index, arr) => arr.indexOf(e) !== index))
+
+    if (duplicates.length) {
+      throw new Error(`Duplicate handlers for command(s) "${duplicates.join(', ')}" found`)
     }
 
-    this.telegraf.command(name, context => {
-      if (!allowedUsersIds.includes(context.update.message.from.id)) {
+    commands.forEach((command) => {  
+      this.telegraf.command(command.name, context => {
+        if (!allowedUsersIds.includes(context.update.message.from.id)) {
+          return
+        }
+  
+        const params = {}
+        const { entities } = context.update.message
+  
+        if (command.keys?.length) {
+          entities.shift()
+  
+          keys.forEach((key, index) => {
+            if (!context.update.message.entities[index]) {
+              params[key] = null
+              
+              return
+            }
+  
+            const { offset, length } = context.update.message.entities[index]
+  
+            params[key] = context.update.message.text.substring(offset, offset + length)
+          })
+        } else {
+          const { offset, length } = entities[0]
+          const { text } = context.update.message
+  
+          params.query = context.update.message.text.substring(offset + length + 1, text.length)
+        }
+  
+        command.handler(context, params)
+      })
+    })
+  },
+
+  async initActions() {
+    const actionsList = await importDirectory(`${process.env.PWD}/src/bot/actions`)
+
+    const actions = {}
+
+    actionsList.forEach((action) => {
+      if (actions[action.name]) {
+        throw new Error(`Duplicate handlers for action "${action.name}" found`)
+      }
+
+      actions[action.name] = action
+    })
+
+    this.telegraf.on('callback_query', async (context) => {
+      if (!allowedUsersIds.includes(context.update.callback_query.from.id)) {
         return
       }
 
-      const params = {}
-      const { entities } = context.update.message
+      const [ action, ...params ] = context.update.callback_query.data.split('|')
 
-      if (keys.length) {
-        entities.shift()
+      if (!actions[action]) {
+        console.error(`Unknown action "${action}"`)
 
-        keys.forEach((key, index) => {
-          if (!context.update.message.entities[index]) {
-            params[key] = null
-            
-            return
-          }
-
-          const { offset, length } = context.update.message.entities[index]
-
-          params[key] = context.update.message.text.substring(offset, offset + length)
-        })
-      } else {
-        const { offset, length } = entities[0]
-        const { text } = context.update.message
-
-        params.query = context.update.message.text.substring(offset + length + 1, text.length)
+        return
       }
 
-      commands[controller].handler(context, params)
+      if (!actions[action].autoanswer && actions[action].autoanswer !== undefined) {
+        await context.answerCbQuery()
+      }
+      
+      actions[action].handler(context, params)
     })
-  }
-
-  action(name) {
-    if (!actions[name]) {
-      throw new Error(`Controller for action '${name}' not found`)
-    }
-
-    this.actions[name] = actions[name]
   }
 }

@@ -3,7 +3,9 @@ import { channels } from '#@/utils/constants.js'
 import getLocale from '#@/utils/helpers/getLocale.js'
 
 export default {
-  handler (context) {
+  name: 'channels',
+
+  async handler (context) {
     const text = getLocale('commands/channels')
 
     const keyboard = channels.map(({ id, name }) => {

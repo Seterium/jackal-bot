@@ -3,6 +3,8 @@ import ytdl from 'ytdl-core'
 import getLocale from '#@/utils/helpers/getLocale.js'
 
 export default {
+  name: 'video',
+  
   async handler (context, { url }) {
     let id
 

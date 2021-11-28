@@ -4,7 +4,9 @@ import dayjs from '#@/utils/helpers/dayjs.js'
 import getLocale from '#@/utils/helpers/getLocale.js'
 import formatCount from '#@/utils/helpers/formatCount.js'
 
-export default {  
+export default {
+  name: 'getVideo',
+  
   async handler (context, [ id ]) {
     const { 
       videoDetails: {
@@ -26,7 +28,6 @@ export default {
     const rating = allowRatings
       ? `${ratingsIcons[Math.trunc(averageRating)]} ${averageRating.toFixed(2)}`
       : '⬛️ ???'
-
 
     const viewsCount = formatCount(viewCount, [
       'просмотр',
