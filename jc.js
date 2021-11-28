@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import dotenv from 'dotenv'
 import { Command } from 'commander';
 import controllers from '#@/cli/_index.js'
@@ -22,6 +23,12 @@ cli
   .command('set-bot-commands')
   .description('Update bot commands list from utils/contants file')
   .action(controllers.setBotCommands)
+
+// cli
+//   .command('yt-download')
+//   .argument('<url>', 'Video URL')
+//   .description('Get Youtube "jackal" video by URL')
+//   .action(controllers.downloadVideo)
 
 console.log()
 
