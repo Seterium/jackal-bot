@@ -1,9 +1,9 @@
 import { Telegraf } from 'telegraf'
 import importDirectory from 'esm-import-directory'
 
-import getLocale from '#@/utils/helpers/getLocale.js'
+import getLocale from '#@/Utils/getLocale.js'
 
-import { allowedUsersIds } from '#@/utils/constants.js'
+import { allowedUsersIds } from '#@/constants.js'
 
 export default {
   telegraf: null,
@@ -25,7 +25,6 @@ export default {
       return
     }
     
-    
     try {
       await this.initActions()
 
@@ -38,7 +37,6 @@ export default {
       return
     }
     
-
     this.telegraf.launch()
 
     process.once('SIGINT', () => this.telegraf.stop('SIGINT'))
@@ -49,9 +47,9 @@ export default {
   },
 
   async initCommands() {
-    const commands = await importDirectory(`${process.env.PWD}/src/bot/commands`)
+    const commands = await importDirectory(`${process.env.PWD}/src/Controllers/Commands`)
 
-    const duplicates = commands.map(({ name }) => name).filter((e, index, arr) => arr.indexOf(e) !== index))
+    const duplicates = commands.map(({ name }) => name).filter((e, index, arr) => arr.indexOf(e) !== index)
 
     if (duplicates.length) {
       throw new Error(`Duplicate handlers for command(s) "${duplicates.join(', ')}" found`)
@@ -66,10 +64,10 @@ export default {
         const params = {}
         const { entities } = context.update.message
   
-        if (command.keys?.length) {
+        if (command.params?.length) {
           entities.shift()
   
-          keys.forEach((key, index) => {
+          command.params.forEach((key, index) => {
             if (!context.update.message.entities[index]) {
               params[key] = null
               
@@ -87,13 +85,13 @@ export default {
           params.query = context.update.message.text.substring(offset + length + 1, text.length)
         }
   
-        command.handler(context, params)
+        command.handler(context, params).bind(command)
       })
     })
   },
 
   async initActions() {
-    const actionsList = await importDirectory(`${process.env.PWD}/src/bot/actions`)
+    const actionsList = await importDirectory(`${process.env.PWD}/src/Controllers/Actions`)
 
     const actions = {}
 
@@ -122,7 +120,7 @@ export default {
         await context.answerCbQuery()
       }
       
-      actions[action].handler(context, params)
+      actions[action].handler(context, params).bind(actions[action])
     })
   }
 }

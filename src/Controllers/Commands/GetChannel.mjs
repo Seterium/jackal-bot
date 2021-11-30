@@ -1,6 +1,6 @@
 
-import { channels } from '#@/utils/constants.js'
-import getLocale from '#@/utils/helpers/getLocale.js'
+import { channels } from '#@/constants.js'
+import getLocale from '#@/utils/getLocale.js'
 
 export default {
   name: 'channels',

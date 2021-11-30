@@ -1,8 +1,8 @@
 import ytdl from 'ytdl-core'
 
-import dayjs from '#@/utils/helpers/dayjs.js'
-import getLocale from '#@/utils/helpers/getLocale.js'
-import formatCount from '#@/utils/helpers/formatCount.js'
+import dayjs from '#@/Utils/dayjs.js'
+import getLocale from '#@/Utils/getLocale.js'
+import formatCount from '#@/Utils/formatCount.js'
 
 export default {
   name: 'getVideo',

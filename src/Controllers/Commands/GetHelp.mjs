@@ -1,4 +1,4 @@
-import getLocale from '#@/utils/helpers/getLocale.js'
+import getLocale from '#@/Utils/getLocale.js'
 
 export default {
   name: 'help',
