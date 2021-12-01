@@ -33,7 +33,7 @@ export default {
             default: def = undefined 
           } = arg
 
-          const formattedName = required ? `<${arg}>` : `[${arg}]`
+          const formattedName = required ? `<${name}>` : `[${name}]`
 
           instance.argument(formattedName, description, def)
         })

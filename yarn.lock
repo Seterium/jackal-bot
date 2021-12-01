@@ -1088,7 +1088,7 @@ netmask@^2.0.1:
   resolved "https://registry.yarnpkg.com/netmask/-/netmask-2.0.2.tgz#8b01a07644065d536383835823bc52004ebac5e7"
   integrity sha512-dBpDMdxv9Irdq66304OLfEmQ9tbNRFnFTuZiLo+bD+r332bBmMJ8GBLXklIXXgxd3+v9+KUnZaUR5PJMa75Gsg==
 
-node-fetch@^2.6.0, node-fetch@^2.6.1:
+node-fetch@^2.6.1:
   version "2.6.6"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.6.tgz#1751a7c01834e8e1697758732e9efb6eeadfaf89"
   integrity sha512-Z8/6vRlTUChSdIgMa51jxQ4lrw/Jy5SOW10ObaA47/RElsAN2c5Pn8bTgFGWn/ibwzXTE8qwr1Yzx28vsecXEA==
@@ -1490,11 +1490,6 @@ smart-buffer@^4.1.0:
   resolved "https://registry.yarnpkg.com/smart-buffer/-/smart-buffer-4.2.0.tgz#6e1d71fa4f18c05f7d0ff216dd16a481d0e8d9ae"
   integrity sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==
 
-smol-jsonp@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/smol-jsonp/-/smol-jsonp-1.0.0.tgz#b662c932a193f1a5c6bb1dcdaaddcd4e2007f7df"
-  integrity sha512-EwM2cKsq87A9cCKiAwfp7kVSRtAT01M/3HXaO3tYxP+pnEZ5zVYsxLdTnPjJVVIeK9O2zkV0QbWuwlHEUQNdOA==
-
 socks-proxy-agent@5, socks-proxy-agent@^5.0.0:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/socks-proxy-agent/-/socks-proxy-agent-5.0.1.tgz#032fb583048a29ebffec2e6a73fca0761f48177e"
@@ -1832,14 +1827,6 @@ yallist@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-4.0.0.tgz#9bb92790d9c0effec63be73519e11a35019a3a72"
   integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
-
-youtube-suggest@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/youtube-suggest/-/youtube-suggest-1.1.2.tgz#3501a0df74cd12d900f8ee6a44a806c20d8a3ff6"
-  integrity sha512-U1CrSIDf9q4H7lx84YiAPfGyMLIXDmSlOLrwcXBkGJFEUodzrD+ZSYMEpJK5UNVWyzE73yxvwGtqrV0dbNQ6LA==
-  dependencies:
-    node-fetch "^2.6.0"
-    smol-jsonp "^1.0.0"
 
 yt-channel-info@^2.2.0:
   version "2.2.0"
