@@ -14,15 +14,18 @@
     "#@/*": "./src/*"
   },
   "dependencies": {
-    "@gonetone/get-youtube-id-by-url": "^1.0.0",
+    "@yimura/scraper": "^1.2.3",
     "commander": "^8.3.0",
     "dayjs": "^1.10.7",
     "dotenv": "^10.0.0",
     "esm-import-directory": "^2.4.0",
     "fluent-ffmpeg": "^2.1.2",
+    "mariadb": "^2.5.5",
     "mustache": "^4.2.0",
     "pretty-error": "^4.0.0",
+    "sequelize": "^6.12.0-alpha.1",
     "telegraf": "^4.4.2",
+    "youtube-suggest": "^1.1.2",
     "yt-channel-info": "^2.2.0",
     "ytcog": "^2.2.1",
     "ytdl-core": "^4.9.1"
