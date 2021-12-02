@@ -1,4 +1,4 @@
-import youtube from '@yimura/scraper'
+import YtData from '#@/Services/YtData.js'
 
 import logger from '#@/Utils/logger.js'
 
@@ -24,13 +24,12 @@ export default {
   ],
 
   async handler (query, options) {
-    const instance = new youtube.default()
+    const searchType = options.channel
+      ? 'channel'
+      : 'video'
 
     try {
-      const result = await instance.search(query, {
-        language: 'ru-RU',
-        searchType: options.channel ? 'channel' : 'video'
-      })
+      const result = await YtData.search(query, searchType)
 
       console.log(result)
     } catch (error) {

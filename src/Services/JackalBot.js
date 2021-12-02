@@ -85,7 +85,7 @@ export default {
           params.query = context.update.message.text.substring(offset + length + 1, text.length)
         }
   
-        command.handler(context, params).bind(command)
+        command.handler(context, params)
       })
     })
   },
@@ -120,7 +120,7 @@ export default {
         await context.answerCbQuery()
       }
       
-      actions[action].handler(context, params).bind(actions[action])
+      actions[action].handler(context, params)
     })
   }
 }

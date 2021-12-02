@@ -1,4 +1,4 @@
-import ytcog from 'ytcog'
+import YtData from '#@/Services/YtData.js'
 
 import logger from '#@/Utils/logger.js'
 
@@ -16,23 +16,8 @@ export default {
   ],
 
   async handler (id) {
-    const {
-      USER_AGENT,
-      COOKIE
-    } = process.env
-  
-    const session = new ytcog.Session(USER_AGENT, COOKIE)
-  
-    await session.fetch()
-    
-    const channel = new ytcog.Channel(session, {
-      id,
-      items: 'videos',
-      quantity: 30
-    })
-
     try {
-      await channel.fetch()
+      const channel = await YtData.getChannel(id)
   
       console.log(channel)
     } catch (error) {
