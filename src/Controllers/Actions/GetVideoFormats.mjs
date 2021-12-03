@@ -1,5 +1,5 @@
 export default {
-  action: 'downloadVideo',
+  action: 'getVideoFormats',
 
   async handler (context, payload) {}
 }

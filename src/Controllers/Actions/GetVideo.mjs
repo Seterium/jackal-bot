@@ -68,7 +68,7 @@ export default {
       [
         {
           text: '📦 Скачать',
-          callback_data: `downloadVideo|${channel.id}`
+          callback_data: `getVideoFormats|${id}`
         }
       ]
     ]
