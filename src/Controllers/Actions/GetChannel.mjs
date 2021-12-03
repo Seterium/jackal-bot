@@ -5,12 +5,15 @@ import getLocale from '#@/Utils/getLocale.js'
 export default {
   action: 'getChannel',
 
-  noAutoanswer: true,
+  params: {
+    id: {
+      type: 'string',
+      required: true
+    }
+  },
 
-  async handler(context, [ id ]) {
+  async handler(context, { id }) {
     let channel
-
-    context.answerCbQuery('⚙️ Загрузка канала')
 
     try {
       channel = await YtData.getChannel(id)

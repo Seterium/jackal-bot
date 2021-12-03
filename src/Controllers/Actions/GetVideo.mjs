@@ -6,8 +6,15 @@ import formatViews from '#@/Utils/formatViews.js'
 
 export default {
   action: 'getVideo',
+
+  params: {
+    id: {
+      type: 'string',
+      required: true
+    }
+  },
   
-  async handler(context, [ id ]) {
+  async handler(context, { id }) {
     let video
 
     try {

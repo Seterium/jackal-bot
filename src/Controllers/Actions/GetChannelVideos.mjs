@@ -8,30 +8,34 @@ import formatViews from '#@/Utils/formatViews.js'
 export default {
   action: 'getChannelVideos',
 
+  params: {
+    id: {
+      type: 'string',
+      required: true,
+    },
+    page: {
+      type: 'integer',
+      default: 1
+    },
+    update: {
+      type: 'boolean',
+      default: false
+    }
+  },
+
   noAutoanswer: true,
 
-  validate(context, [ , page ]) {
-    page = parseInt(page)
-
+  validate(_, { page }) {
     if (page < 1) {
-      context.answerCbQuery('Все, дно достингнуто, дальше только рубль')
-
-      return
+      throw 'Все, дно достингнуто, дальше только рубль'
     }
 
     if (page > 10) {
-      context.answerCbQuery('Все, потолок, дальше живут драконы')
-
-      return
+      throw 'Все, потолок, дальше живут драконы'
     }
-
-    return true
   },
 
-  async handler(context, [ id, page = 1, update = 0 ]) {
-    page = parseInt(page)
-    update = !!parseInt(update)
-
+  async handler(context, { id, page, update }) {
     let result
 
     try {

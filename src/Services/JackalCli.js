@@ -19,10 +19,7 @@ export default {
       const instance = cli.command(command)
 
       instance.action(handler)
-
-      if (description) {
-        instance.description(description)
-      }
+      instance.description(description)
 
       if (args.length) {
         args.forEach(arg => {

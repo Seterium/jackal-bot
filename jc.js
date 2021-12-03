@@ -1,9 +1,9 @@
 import dotenv from 'dotenv'
 
 import JackalCli from '#@/Services/JackalCli.js'
-import Mongoose from '#@/Services/Mongoose.js'
+// import Mongoose from '#@/Services/Mongoose.js'
 
 dotenv.config()
 
-Mongoose.init()
+// Mongoose.init()
 JackalCli.init()

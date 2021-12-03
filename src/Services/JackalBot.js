@@ -1,17 +1,28 @@
 import { Telegraf } from 'telegraf'
 import importDirectory from 'esm-import-directory'
+import cast from 'cast'
 
 import getLocale from '#@/Utils/getLocale.js'
 
 import { allowedUsersIds } from '#@/constants.js'
 
 export default {
-  telegraf: null,
+  bot: null,
 
   async init () {
-    console.log('\r\n[JCB] Initialize Jackal bot system\r\n')
+    console.log('\r\n[JCB] Initialize Jackal bot\r\n')
 
-    this.telegraf = new Telegraf(process.env.BOT_TOKEN)
+    this.bot = new Telegraf(process.env.BOT_TOKEN)
+
+    this.bot.use(async (context, next) => {
+      const { from } = context.update.callback_query || context.update.message
+
+      if (!allowedUsersIds.includes(from.id)) {
+        return
+      }
+
+      await next()
+    })
 
     try {
       await this.initCommands()
@@ -37,13 +48,14 @@ export default {
       return
     }
     
-    this.telegraf.launch()
+    this.bot.launch()
 
-    process.once('SIGINT', () => this.telegraf.stop('SIGINT'))
-    process.once('SIGTERM', () => this.telegraf.stop('SIGTERM'))
+    console.log('\r\n[JCB] Jackal bot initialized')
 
-    console.log()
-    console.log(getLocale('jackal'))
+    process.once('SIGINT', () => this.bot.stop('SIGINT'))
+    process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
+
+    console.log('\r\n', getLocale('jackal'), '\r\n')
   },
 
   async initCommands() {
@@ -56,14 +68,11 @@ export default {
     }
 
     commands.forEach((command) => {  
-      this.telegraf.command(command.command, context => {
-        if (!allowedUsersIds.includes(context.update.message.from.id)) {
-          return
-        }
-  
+      this.bot.command(command.command, context => {  
         const params = {}
         const { entities } = context.update.message
   
+        // TODO Заменить params на объект
         if (command.params?.length) {
           entities.shift()
   
@@ -86,12 +95,18 @@ export default {
         }
 
         if (command.validate) {
-          if (command.validate(context, params)) {
-            command.handler(context, params)
+          try {
+            command.validate(context, params)
+          } catch (error) {
+            context.reply(error, {
+              parse_mode: 'HTML'
+            })
+
+            return
           }
-        } else {
-          command.handler(context, params)
         }
+
+        command.handler(context, params)
       })
     })
   },
@@ -109,12 +124,34 @@ export default {
       actions[action.action] = action
     })
 
-    this.telegraf.on('callback_query', async (context) => {
-      if (!allowedUsersIds.includes(context.update.callback_query.from.id)) {
-        return
-      }
+    this.bot.on('callback_query', async (context) => {
+      const [ action, ...rawParams ] = context.update.callback_query.data.split('|')
 
-      const [ action, ...params ] = context.update.callback_query.data.split('|')
+      const params = {}
+
+      if (actions[action].params) {
+        let index = 0
+
+        for (let key in actions[action].params) {
+          const {
+            required,
+            type,
+            default: def
+          } = actions[action].params[key]
+
+          const paramValue = rawParams[index]
+
+          if (paramValue) {
+            params[key] = cast(paramValue, type)
+          } else if (required) {
+            throw new Error(`Missing required param '${key}' in action ${action}`)
+          } else {
+            params[key] = def
+          }
+
+          index += 1
+        }
+      }
 
       if (action === 'none') {
         context.answerCbQuery('Хз че ты хотел, мне ответить нечего')
@@ -133,12 +170,16 @@ export default {
       }
 
       if (actions[action].validate) {
-        if (actions[action].validate(context, params)) {
-          actions[action].handler(context, params)
+        try {
+          actions[action].validate(context, params)
+        } catch (error) {
+          context.answerCbQuery(error)
+
+          return
         }
-      } else {
-        actions[action].handler(context, params)
       }
+
+      actions[action].handler(context, params)
     })
   }
 }

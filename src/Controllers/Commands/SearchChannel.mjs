@@ -9,18 +9,12 @@ export default {
 
   validate(context, { query }) {
     if (!query) {
-      context.reply(getLocale('commands/channel/errors/queryRequired'))
-
-      return false
+      throw getLocale('commands/channel/errors/queryRequired')
     }
 
     if (query.length < 3) {
-      context.reply(getLocale('commands/channel/errors/queryInvalid'))
-
-      return false
+      throw getLocale('commands/channel/errors/queryInvalid')
     }
-
-    return true
   },
 
   async handler(context, { query }) {

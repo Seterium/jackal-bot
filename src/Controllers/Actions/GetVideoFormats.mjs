@@ -1,5 +1,12 @@
 export default {
   action: 'getVideoFormats',
 
-  async handler (context, payload) {}
+  params: {
+    id: {
+      type: 'string',
+      required: true
+    }
+  },
+
+  async handler (context, { id }) {}
 }
