@@ -3,7 +3,9 @@ import { channels } from '#@/constants.js'
 import getLocale from '#@/utils/getLocale.js'
 
 export default {
-  name: 'channels',
+  command: 'channels',
 
-  async handler (context) {}
+  async handler (context) {
+
+  }
 }

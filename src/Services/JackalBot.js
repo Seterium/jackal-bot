@@ -49,14 +49,14 @@ export default {
   async initCommands() {
     const commands = await importDirectory(`${process.env.PWD}/src/Controllers/Commands`)
 
-    const duplicates = commands.map(({ name }) => name).filter((e, index, arr) => arr.indexOf(e) !== index)
+    const duplicates = commands.map(({ command }) => command).filter((e, index, arr) => arr.indexOf(e) !== index)
 
     if (duplicates.length) {
       throw new Error(`Duplicate handlers for command(s) "${duplicates.join(', ')}" found`)
     }
 
     commands.forEach((command) => {  
-      this.telegraf.command(command.name, context => {
+      this.telegraf.command(command.command, context => {
         if (!allowedUsersIds.includes(context.update.message.from.id)) {
           return
         }
@@ -82,10 +82,16 @@ export default {
           const { offset, length } = entities[0]
           const { text } = context.update.message
   
-          params.query = context.update.message.text.substring(offset + length + 1, text.length)
+          params.query = context.update.message.text.substring(offset + length + 1, text.length).trim()
         }
-  
-        command.handler(context, params)
+
+        if (command.validate) {
+          if (command.validate(context, params)) {
+            command.handler(context, params)
+          }
+        } else {
+          command.handler(context, params)
+        }
       })
     })
   },
@@ -96,11 +102,11 @@ export default {
     const actions = {}
 
     actionsList.forEach((action) => {
-      if (actions[action.name]) {
+      if (actions[action.action]) {
         throw new Error(`Duplicate handlers for action "${action.name}" found`)
       }
 
-      actions[action.name] = action
+      actions[action.action] = action
     })
 
     this.telegraf.on('callback_query', async (context) => {
@@ -110,17 +116,29 @@ export default {
 
       const [ action, ...params ] = context.update.callback_query.data.split('|')
 
+      if (action === 'none') {
+        context.answerCbQuery('Хз че ты хотел, мне ответить нечего')
+
+        return
+      }
+
       if (!actions[action]) {
         console.error(`Unknown action "${action}"`)
 
         return
       }
 
-      if (!actions[action].autoanswer && actions[action].autoanswer !== undefined) {
-        await context.answerCbQuery()
+      if (!actions[action].noAutoanswer) {
+        context.answerCbQuery()
       }
-      
-      actions[action].handler(context, params)
+
+      if (actions[action].validate) {
+        if (actions[action].validate(context, params)) {
+          actions[action].handler(context, params)
+        }
+      } else {
+        actions[action].handler(context, params)
+      }
     })
   }
 }

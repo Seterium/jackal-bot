@@ -24,9 +24,5 @@ export const channels = [
   {
     id: 'UCsJR1qQDNyFvsX_9_bNM63A',
     name: 'Доктор Дью'
-  },
-  {
-    id: 'UC0lT9K8Wfuc1KPqm6YjRf1A',
-    name: 'AcademeG'
   }
 ]

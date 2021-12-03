@@ -26,7 +26,7 @@ export default (duration, format = null) => {
     default:
       return { 
         minutes,
-        seconds
+        seconds: seconds < 10 ? `0${seconds}` : seconds 
       }
   }
 }

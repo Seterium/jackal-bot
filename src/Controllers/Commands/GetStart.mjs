@@ -1,7 +1,7 @@
 import getLocale from '#@/utils/getLocale.js'
 
 export default {
-  name: 'start',
+  command: 'start',
 
   async handler(context) {
     const text = getLocale('commands/start', {

@@ -1,7 +1,7 @@
 import getLocale from '#@/utils/getLocale.js'
 
 export default {
-  name: 'video',
+  command: 'video',
   
   async handler (context, [ url ]) {}
 }

@@ -1,96 +1,84 @@
-// import dayjs from '#@/Utils/dayjs.js'
-// import getLocale from '#@/Utils/getLocale.js'
-// import formatCount from '#@/Utils/formatCount.js'
+import YtData from '#@/Services/YtData.js'
+
+import dayjs from '#@/Utils/dayjs.js'
+import getLocale from '#@/Utils/getLocale.js'
+import formatViews from '#@/Utils/formatViews.js'
 
 export default {
-  name: 'getVideo',
+  action: 'getVideo',
   
   async handler(context, [ id ]) {
-    // const { 
-    //   videoDetails: {
-    //     videoId,
-    //     title,
-    //     averageRating,
-    //     allowRatings,
-    //     likes,
-    //     dislikes,
-    //     viewCount,
-    //     uploadDate,
-    //     author,
-    //     lengthSeconds
-    //   }
-    // } = await ytdl.getInfo(`https://www.youtube.com/watch?v=${id}`)
+    let video
 
-    // const ratingsIcons = [ '🟫', '🟥', '🟧', '🟩', '🟩' ]
+    try {
+      video = await YtData.getVideo(id)
+    } catch (error) {
+      return context.reply(getLocale('actions/getVideo/errors/fatal'))
+    }
 
-    // const rating = allowRatings
-    //   ? `${ratingsIcons[Math.trunc(averageRating)]} ${averageRating.toFixed(2)}`
-    //   : '⬛️ ???'
+    const {
+      channel,
+      rating,
+      published,
+      views,
+      duration: {
+        minutes,
+        seconds
+      }
+    } = video
 
-    // const viewsCount = formatCount(viewCount, [
-    //   'просмотр',
-    //   'просмотра',
-    //   'просмотров'
-    // ])
+    const ratingsIcons = ['🟤', '🔴', '🟠', '🟢', '🟢']
 
-    // const minutesCount = formatCount(Math.trunc(+lengthSeconds / 60), [
-    //   'минута',
-    //   'минуты',
-    //   'минут'
-    // ])
+    const ratingLabel = rating
+      ? `${ratingsIcons[Math.trunc(rating)]} ${rating.toFixed(2)}`
+      : '⚫️ ???'
 
-    // const secondsCount = formatCount(+lengthSeconds % 60, [
-    //   'секунда',
-    //   'секунды',
-    //   'секунд'
-    // ])
+    const uploaded = dayjs(published).format('DD MMM. YYYY')
+    const viewsCount = formatViews(views)
+
+    const message = getLocale('actions/getVideo/index', {
+      ...video,
+      duration: `${minutes}:${seconds}`,
+      rating: ratingLabel,
+      views: viewsCount,
+      uploaded
+    })
+
+    const cover = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
+
+    const keyboard = [
+      [
+        {
+          text: `📺 ${channel.title}`,
+          callback_data: `getChannel|${channel.id}`
+        },
+        {
+          text: '➕ Подписаться',
+          callback_data: `saveChannel|${channel.id}`
+        },
+        // {
+        //   text: '❌ Отписаться',
+        //   callback_data: `removeSavedChannel|${author.id}`
+        // },
+        {
+          text: '🔕',
+          callback_data: `disableChannelNotify|${id}`
+        },
+      ],
+      [
+        {
+          text: '📦 Скачать',
+          callback_data: `downloadVideo|${channel.id}`
+        }
+      ]
+    ]
     
-    // const duration = `${minutesCount} ${secondsCount}`
-
-    // const uploaded = dayjs(uploadDate, 'YYYY-MM-DD').format('DD MMM. YYYY')
-
-    // const text = getLocale('actions/getVideo/index', {
-    //   title,
-    //   author,
-    //   duration,
-    //   rating,
-    //   likes,
-    //   dislikes: dislikes ? dislikes : 'X',
-    //   viewsCount,
-    //   uploaded
-    // })
-
-    // const keyboard = [
-    //   [
-    //     {
-    //       text: '➕ Сохранить канал',
-    //       callback_data: `saveChannel|${author.id}`
-    //     },
-    //     // {
-    //     //   text: '❌ Убрать из сохраненных каналов',
-    //     //   callback_data: `removeSavedChannel|${author.id}`
-    //     // },
-    //     {
-    //       text: '📦 Скачать видео',
-    //       callback_data: `downloadVideo|${author.id}`
-    //     }
-    //   ],
-    //   [
-    //     {
-    //       text: `➕ Другие видео с канала "${author.name}"`,
-    //       callback_data: `getChannel|${author.id}`
-    //     },
-    //   ]
-    // ]
-
-    // const cover = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
-    
-    // await context.replyWithPhoto(cover, {
-    //   caption: text,
-    //   parse_mode: 'HTML',
-    //   reply_markup: {
-    //     inline_keyboard: keyboard
-    //   }
-    // })
+    await context.replyWithPhoto(cover, {
+      caption: message,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: keyboard
+      }
+    })
   }
 }

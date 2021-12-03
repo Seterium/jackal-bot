@@ -19,6 +19,8 @@
     "dotenv": "^10.0.0",
     "esm-import-directory": "^2.4.0",
     "fluent-ffmpeg": "^2.1.2",
+    "lodash.chunk": "^4.2.0",
+    "lodash.round": "^4.0.4",
     "miniget": "^4.2.1",
     "mongoose": "^6.0.14",
     "mustache": "^4.2.0",

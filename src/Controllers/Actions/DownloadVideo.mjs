@@ -1,5 +1,5 @@
 export default {
-  name: 'jackalVideo',
+  action: 'downloadVideo',
 
   async handler (context, payload) {}
 }

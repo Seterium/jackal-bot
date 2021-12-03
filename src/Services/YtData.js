@@ -1,6 +1,8 @@
 import ytcog from 'ytcog'
 import miniget from 'miniget'
 
+import fs from 'fs'
+
 import formatDuration from '#@/Utils/formatDuration.js'
 
 export default {
@@ -18,54 +20,65 @@ export default {
 
     await video.fetch()
 
-    const {
-      title,
-      channelId,
-      author,
-      duration,
-      views,
-      rating,
-      published,
-      // formats
-    } = video
+    
 
-    return {
-      id,
-      title,
-      channel: {
-        id: channelId,
-        title: author
-      },
-      cover: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-      duration: formatDuration(duration),
-      views,
-      rating,
-      published
-    }
+    return this.mapVideoData(video)
   },
 
   async getChannel(id) {
     const session = await this.getSession()
 
     const channel = new ytcog.Channel(session, {
+      id
+    })
+
+    await channel.fetch()
+
+    fs.writeFileSync(`${process.env.PWD}/public/data.json`, JSON.stringify(channel.data, null, 2))
+
+    const {
+      data,
+      author,
+      description
+    } = channel
+
+    const cover = data[0]?.header.c4TabbedHeaderRenderer?.banner?.thumbnails[0].url
+
+    return {
+      id,
+      title: author,
+      cover,
+      description
+    }
+  },
+
+  async getChannelVideos(id, page = 1) {
+    const session = await this.getSession()
+
+    const VIDEOS_PER_PAGE = parseInt(process.env.VIDEOS_PER_PAGE)
+
+    const channel = new ytcog.Channel(session, {
       id,
       items: 'videos',
-      quantity: 10
+      quantity: page * VIDEOS_PER_PAGE > 60 ? page * VIDEOS_PER_PAGE : 60
     })
 
     await channel.fetch()
 
     const {
       author,
-      thumbnail,
-      videos
+      videos: videosRaw
     } = channel
+
+    const sliceStart = (page - 1) * VIDEOS_PER_PAGE
+
+    const videos = videosRaw.slice(sliceStart, sliceStart + VIDEOS_PER_PAGE).map(this.mapVideoData)
 
     return {
       id,
       title: author,
-      thumbnail,
-      videos: videos.map(this.mapVideoData)
+      videos,
+      count: videos.length
     }
   },
 
@@ -100,6 +113,34 @@ export default {
     const mappedData = this.mapSearchData(parsedData, type)
 
     return mappedData
+  },
+
+  mapVideoData(video, key) {
+    const {
+      id,
+      title,
+      channelId,
+      author,
+      duration,
+      views,
+      rating,
+      published,
+    } = video
+
+    return {
+      id,
+      key: key + 1,
+      title,
+      channel: {
+        id: channelId,
+        title: author
+      },
+      cover: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+      duration: formatDuration(duration),
+      views,
+      rating,
+      published
+    }
   },
 
   parseSearchData(input) {
@@ -143,11 +184,11 @@ export default {
     const enitiesParser = {
       channel: {
         check: ({ channelRenderer }) => typeof channelRenderer !== 'undefined',
-        map: ({ channelRenderer }) => this.mapChannelsSearchData(channelRenderer)
+        map: ({ channelRenderer }, key) => this.mapChannelsSearchData(channelRenderer, key)
       },
       video: {
         check: ({ videoRenderer }) => videoRenderer && videoRenderer.lengthText,
-        map: ({ videoRenderer }) => this.mapVideosSearchData(videoRenderer)
+        map: ({ videoRenderer }, key) => this.mapVideosSearchData(videoRenderer, key)
       }
     }
 
@@ -155,14 +196,14 @@ export default {
 
     for (const entity of input) {
       if (enitiesParser[type].check(entity)) {
-        results.push(enitiesParser[type].map(entity))
+        results.push(enitiesParser[type].map(entity, results.length + 1))
       }
     }
 
     return results
   },
 
-  mapVideosSearchData(raw) {
+  mapVideosSearchData(raw, key) {
     const {
       videoId: id,
       ownerText: {
@@ -198,6 +239,7 @@ export default {
 
     return {
       id,
+      key,
       title,
       channel: {
         id: channelId,
@@ -214,7 +256,7 @@ export default {
     }
   },
 
-  mapChannelsSearchData(raw) {
+  mapChannelsSearchData(raw, key) {
     const {
       channelId: id,
       title: {
@@ -225,10 +267,11 @@ export default {
 
     const subscribers = subscriberCountText
       ? subscriberCountText.simpleText
-      : 'скрыто'
+      : 'Число подписчиков скрыто'
 
     return {
       id,
+      key,
       title,
       subscribers
     }
