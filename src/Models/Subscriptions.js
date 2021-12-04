@@ -5,8 +5,14 @@ export default {
 
   schema: new mongoose.Schema({
     channel: {
-      type: String,
-      required: true
+      id: {
+        type: String,
+        required: true
+      },
+      title: {
+        type: String,
+        required: true
+      },
     },
     user: {
       type: Number,

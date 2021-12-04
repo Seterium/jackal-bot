@@ -1,5 +1,7 @@
 import YtData from '#@/Services/YtData.js'
 
+import SubscriptionsModel from '#@/Models/Subscriptions.js'
+
 import dayjs from '#@/Utils/dayjs.js'
 import getLocale from '#@/Utils/getLocale.js'
 import formatViews from '#@/Utils/formatViews.js'
@@ -51,6 +53,17 @@ export default {
       uploaded
     })
 
+    let subscription
+
+    try {
+      subscription = await SubscriptionsModel.model.findOne({
+        'channel.id': channel.id,
+        user: context.update.callback_query.from.id
+      })
+    } catch (error) {
+      subscription = false
+    }
+
     const cover = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
 
     const keyboard = [
@@ -59,17 +72,21 @@ export default {
           text: `📺 ${channel.title}`,
           callback_data: `getChannel|${channel.id}`
         },
+      ],
+      [
         {
-          text: '➕ Подписаться',
-          callback_data: `saveChannel|${channel.id}`
+          text: subscription 
+            ? '➖ Отписаться'
+            : '➕ Подписаться',
+          callback_data: subscription
+            ? `unsubscribe|${channel.id}|${video.id}`
+            : `subscribe|${channel.id}|${video.id}`
         },
-        // {
-        //   text: '❌ Отписаться',
-        //   callback_data: `removeSavedChannel|${author.id}`
-        // },
         {
-          text: '🔕',
-          callback_data: `disableChannelNotify|${id}`
+          text: '🔕 Уведомления выкл.',
+          callback_data: subscription
+            ? `enableNotifications|${id}`
+            : 'notificationsUnavailable'
         },
       ],
       [

@@ -1,5 +1,7 @@
 import YtData from '#@/Services/YtData.js'
 
+import SubscriptionsModel from '#@/Models/Subscriptions.js'
+
 import getLocale from '#@/Utils/getLocale.js'
 
 export default {
@@ -18,9 +20,7 @@ export default {
     try {
       channel = await YtData.getChannel(id)
     } catch (error) {
-      context.reply(getLocale('actions/getChannel/errors/fatal'))
-
-      return
+      return context.reply(getLocale('actions/getChannel/errors/fatal'))
     }
 
     const message = getLocale('actions/getChannel/index', {
@@ -30,30 +30,36 @@ export default {
         : channel.description
     })
 
+    let subscription = false
+
+    try {
+      subscription = await SubscriptionsModel.model.findOne({
+        'channel.id': id,
+        user: context.update.callback_query.from.id
+      })
+    } catch (error) {}
+
     const keyboard = [
       [
         {
-          text: '➕ Подписаться',
-          callback_data: `subscribeChannel|${id}`
+          text: subscription 
+            ? '➖ Отписаться'
+            : '➕ Подписаться',
+          callback_data: subscription
+            ? `unsubscribe|${subscription.id}|${id}`
+            : `subscribe|${id}`
         },
-        // {
-        //   text: '➖ Отписаться',
-        //   callback_data: `subscribeChannel|${id}`
-        // },
-
-        // {
-        //   text: '🔔 Уведомления вкл.',
-        //   callback_data: `enableChannelNotify|${id}`
-        // },
         {
-          text: '🔕 Уведомления выкл',
-          callback_data: `disableChannelNotify|${id}`
-        }
+          text: '🔕 Уведомления выкл.',
+          callback_data: subscription
+            ? `enableNotifications|${id}`
+            : 'notificationsUnavailable'
+        },
       ],
       [
         {
           text: '🎬 Видео',
-          callback_data: `getChannelVideos|${id},1`
+          callback_data: `getChannelVideos|${id}|1`
         }
       ]
     ]

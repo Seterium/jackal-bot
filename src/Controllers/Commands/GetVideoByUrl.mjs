@@ -3,7 +3,14 @@ import getLocale from '#@/utils/getLocale.js'
 export default {
   command: 'url',
 
-  validate(context, { query }) {},
+  params: {
+    url: {
+      type: 'string',
+      required: true
+    }
+  },
+
+  validate(context, { url }) {},
   
   async handler (context, { url }) {}
 }

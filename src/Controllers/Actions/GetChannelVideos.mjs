@@ -67,7 +67,7 @@ export default {
     const pagination = [
       {
         text: '⬅️',
-        callback_data: `getChannelVideos|${id}|${page - 1}|1`
+        callback_data: `getChannelVideos|${id}|${page - 1}|true`
       },
       {
         text: `Страница: ${page}`,
@@ -75,7 +75,7 @@ export default {
       },
       {
         text: '➡️',
-        callback_data: `getChannelVideos|${id}|${page + 1}|1`
+        callback_data: `getChannelVideos|${id}|${page + 1}|true`
       },
     ]
 

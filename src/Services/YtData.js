@@ -20,8 +20,6 @@ export default {
 
     await video.fetch()
 
-    
-
     return this.mapVideoData(video)
   },
 
@@ -33,8 +31,6 @@ export default {
     })
 
     await channel.fetch()
-
-    fs.writeFileSync(`${process.env.PWD}/public/data.json`, JSON.stringify(channel.data, null, 2))
 
     const {
       data,
@@ -52,7 +48,7 @@ export default {
     }
   },
 
-  async getChannelVideos(id, page = 1) {
+  async getChannelVideos(id, page) {
     const session = await this.getSession()
 
     const VIDEOS_PER_PAGE = parseInt(process.env.VIDEOS_PER_PAGE)
