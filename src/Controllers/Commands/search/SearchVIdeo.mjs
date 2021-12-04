@@ -1,6 +1,5 @@
 import chunk from 'lodash.chunk'
 
-import YtData from '#@/Services/YtData.js'
 import Controller from '#@/Controllers/Controller.js'
 
 class SearchVideo extends Controller {
@@ -8,30 +7,47 @@ class SearchVideo extends Controller {
 
   locales = 'search'
 
-  validate(context, { query }) {
+  validate({ query }) {
     if (!query) {
-      context.reply(getLocale('commands/video/errors/queryRequired'))
-
-      return false
+      throw this.$loc('errors/queryRequired')
     }
 
     if (query.length < 3) {
-      context.reply(getLocale('commands/video/errors/queryInvalid'))
-
-      return false
+      throw this.$loc('errors/queryInvalid')
     }
-
-    return true
   }
 
   async handler(context, { query }) {
-    try {
-      const result = await YtData.search(query, 'video')
+    let videos
 
-      console.log(result)
+    try {
+      videos = await this.$yt.search(query, 'video')
     } catch (error) {
-      console.log(error)
+      return context.reply(this.$loc('errors/fatal'))
     }
+
+    if (!videos.length) {
+      return context.reply(this.$loc('empty', {
+        query
+      }))
+    }
+
+    const message = this.$loc('index', {
+      query,
+      videos
+    })
+
+    const keyboard = videos.map(({ id, key }) => ({
+      text: key,
+      callback_data: `getVideo|${id}`
+    }))
+
+    context.reply(message, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: chunk(keyboard, 4)
+      }
+    })
   }
 }
 

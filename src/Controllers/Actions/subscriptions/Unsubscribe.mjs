@@ -5,6 +5,8 @@ import SubscriptionsModel from '#@/Models/Subscriptions.js'
 class Unsubscribe extends Controller {
   action = 'unsubscribe'
 
+  locales = 'subscriptions'
+
   params = {
     channelId: {
       type: 'string',

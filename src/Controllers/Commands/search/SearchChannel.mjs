@@ -18,28 +18,27 @@ class SearchChannel extends Controller {
   }
 
   async handler(context, { query }) {
-    let list = []
+    let channels = []
 
     try {
-      list = await YtData.search(query, 'channel')
+      channels = await this.$yt.search(query, 'channel')
     } catch (error) {
-      context.reply(this.$loc('errors/fatal'))
-
-      return
+      console.log(error)
+      return context.reply(this.$loc('errors/fatal'))
     }
 
-    if (!list.length) {
-      context.reply(this.$loc('empty', {
+    if (!channels.length) {
+      return context.reply(this.$loc('empty', {
         query
       }))
     }
 
     const message = this.$loc('index', {
       query,
-      list
+      channels
     })
 
-    const keyboard = list.map(({ id, key }) => ({
+    const keyboard = channels.map(({ id, key }) => ({
       text: key,
       callback_data: `getChannel|${id}`
     }))

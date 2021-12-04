@@ -3,6 +3,8 @@ import Controller from '#@/Controllers/Controller.js'
 class GetVideoFile extends Controller {
   action = 'downloadVideo'
 
+  locales = 'video'
+
   params = {
     id: {
       type: 'string',

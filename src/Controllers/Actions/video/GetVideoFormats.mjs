@@ -3,6 +3,8 @@ import Controller from '#@/Controllers/Controller.js'
 class GetVideoFormats extends Controller {
   action = 'getVideoFormats'
 
+  locales = 'video'
+
   params = {
     id: {
       type: 'string',
@@ -10,7 +12,9 @@ class GetVideoFormats extends Controller {
     }
   }
 
-  async handler (context, { id }) {}
+  async handler (context, { id }) {
+    
+  }
 }
 
 export default new GetVideoFormats

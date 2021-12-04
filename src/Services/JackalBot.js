@@ -160,7 +160,7 @@ export default {
       const [ action, ...rawParams ] = context.update.callback_query.data.split('|')
 
       if (action === 'none') {
-        return context.answerCbQuery('Хз че ты хотел, мне ответить нечего')
+        return context.answerCbQuery()
       }
 
       if (!actions[action]) {

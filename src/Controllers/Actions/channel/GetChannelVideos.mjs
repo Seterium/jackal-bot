@@ -26,7 +26,7 @@ class GetChannelVideos extends Controller {
 
   noAutoanswer = true
 
-  validate(_, { page }) {
+  validate({ page }) {
     if (page < 1) {
       throw this.$loc('errors/minPage')
     }
@@ -46,24 +46,27 @@ class GetChannelVideos extends Controller {
     }
 
     if (!result.videos.length && update) {
-      context.answerCbQuery('Больше видео нет')
+      return context.answerCbQuery(this.$loc('errors/noMore'))
     }
-
-    const videos = result.videos.map(({ duration, views, ...video }) => ({
-      ...video,
-      duration: `${duration.minutes}:${duration.seconds}`,
-      views: formatViews(views)
-    }))
 
     const message = this.$loc('index', {
       ...result,
-      videos
+      videos: result.videos
     })
 
-    const keyboard = videos.map(({ id, key }) => ({
-      text: key,
-      callback_data: `getVideo|${id}`
-    }))
+    const keyboard = result.videos.map(({ id, key }, index) => {
+      const prevVideoId = index >= 1 
+        ? result.videos[index - 1].id
+        : ''
+      const nextVideoId = index < result.videos.length - 1
+        ? result.videos[index + 1].id
+        : ''
+
+      return {
+        text: key,
+        callback_data: `getVideo|${id}|${prevVideoId}|${nextVideoId}`
+      }
+    })
 
     const pagination = [
       {

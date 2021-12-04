@@ -8,6 +8,8 @@ import formatViews from '#@/Utils/formatViews.js'
 class GetVideo extends Controller {
   action = 'getVideo'
 
+  locales = 'video'
+
   params = {
     id: {
       type: 'string',
@@ -26,30 +28,24 @@ class GetVideo extends Controller {
 
     const {
       channel,
-      rating,
+      rating: ratingRaw,
       published,
       views,
-      duration: {
-        minutes,
-        seconds
-      }
+      duration
     } = video
 
     const ratingsIcons = ['🟤', '🔴', '🟠', '🟢', '🟢']
 
-    const ratingLabel = rating
-      ? `${ratingsIcons[Math.trunc(rating)]} ${rating.toFixed(2)}`
+    const rating = ratingRaw
+      ? `${ratingsIcons[Math.trunc(ratingRaw)]} ${ratingRaw.toFixed(2)}`
       : '⚫️ ???'
-
-    const uploaded = dayjs(published).format('DD MMM. YYYY')
-    const viewsCount = formatViews(views)
 
     const message = this.$loc('index', {
       ...video,
-      duration: `${minutes}:${seconds}`,
-      rating: ratingLabel,
-      views: viewsCount,
-      uploaded
+      duration,
+      rating,
+      views: formatViews(views),
+      uploaded: dayjs(published).fromNow()
     })
 
     let subscription
@@ -92,11 +88,15 @@ class GetVideo extends Controller {
         {
           text: '📦 Скачать',
           callback_data: `getVideoFormats|${id}`
+        },
+        {
+          text: '◀️ Назад',
+          callback_data: 'removePrevMessage'
         }
       ]
     ]
     
-    await context.replyWithPhoto(cover, {
+    context.replyWithPhoto(cover, {
       caption: message,
       parse_mode: 'HTML',
       reply_markup: {

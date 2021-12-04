@@ -5,6 +5,8 @@ import SubscriptionsModel from '#@/Models/Subscriptions.js'
 class Subscribe extends Controller {
   action = 'subscribe'
 
+  locales = 'subscriptions'
+
   params = {
     channelId: {
       type: 'string',

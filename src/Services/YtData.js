@@ -3,6 +3,7 @@ import miniget from 'miniget'
 
 import fs from 'fs'
 
+import formatViews from '#@/Utils/formatViews.js'
 import formatDuration from '#@/Utils/formatDuration.js'
 
 export default {
@@ -21,6 +22,18 @@ export default {
     await video.fetch()
 
     return this.mapVideoData(video)
+  },
+
+  async getVideoFormats (id) {
+    const session = await this.getSession()
+
+    const video = new ytcog.Video(session, {
+      id
+    })
+
+    await video.fetch()
+
+    return video.formats
   },
 
   async getChannel(id) {
@@ -132,8 +145,8 @@ export default {
         title: author
       },
       cover: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-      duration: formatDuration(duration),
-      views,
+      duration: formatDuration(duration, 'full'),
+      views: formatViews(views),
       rating,
       published
     }
@@ -222,16 +235,15 @@ export default {
         ]
       },
       lengthText: {
-        simpleText: durationText
+        simpleText: duration
       },
       viewCountText,
       publishedTimeText
     } = raw
 
     const views = +(viewCountText?.simpleText.replace(/[^0-9]/g, '')) || 0
-    const publishedText = publishedTimeText?.simpleText || '-'
+    const uploaded = publishedTimeText?.simpleText || '-'
     const cover = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
-    const [ minutes, seconds ] = durationText.split(':')
 
     return {
       id,
@@ -242,13 +254,9 @@ export default {
         title: channelTitle
       },
       cover,
-      duration: {
-        minutes: +minutes,
-        seconds: +seconds
-      },
-      views,
-      rating: 0,
-      publishedText
+      duration,
+      views: views ? formatViews(views) : 'неизвестно',
+      uploaded
     }
   },
 

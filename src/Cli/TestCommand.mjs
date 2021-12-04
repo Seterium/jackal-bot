@@ -1,6 +1,11 @@
-import Mongoose from 'mongoose'
+import filesize from 'filesize'
 
-import SubscriptionsModel from '#@/Models/Subscriptions.js'
+import YtData from '#@/Services/YtData.js'
+
+import logger from '#@/Utils/logger.js'
+import groupBy from 'lodash.groupby'
+
+import { formatsFilter } from '#@/constants.js'
 
 export default {
   command: 'test',
@@ -8,38 +13,38 @@ export default {
   description: 'Feature testing command',
 
   async handler () {
-    // Create
-    // const subscription = new SubscriptionsModel.model({
-    //   channel: 'UCsJR1qQDNyFvsX_9_bNM63A',
-    //   user: 123123123
-    // })
-    //
-    // await subscription.save()
+    try {
+      const formats = await YtData.getVideoFormats('qRst1tEWA1Y')
 
-    // Read
-    // const subscription = await SubscriptionsModel.model.findById('61aa8f96e19952e4bc199cc2')
-    //
-    // console.log(subscription)
+      const filtered = formats.filter(({ itag, quality, mimeType }) => {
+        const [ mime ] = mimeType.split('; ')
 
-    // Update
-    // const subscription = await SubscriptionsModel.model.findById('61aa8f96e19952e4bc199cc2')
-    //
-    // subscription.notifications = true
-    //
-    // await subscription.save()
+        return formatsFilter.includedQuality.includes(quality) 
+          && formatsFilter.includedMime.includes(mime)
+          && !formatsFilter.excludedItags.includes(itag)
+      })
+      
+      const mapped = filtered.map(({ url, itag, mimeType, contentLength, quality, qualityLabel  }) => ({
+        url,
+        itag,
+        mimeType,
+        contentLength: parseInt(contentLength),
+        size: filesize(parseInt(contentLength), {
+          round: 0,
+        }),
+        quality,
+        qualityLabel
+      }))
 
-    // Delete
-    // const subscription = await SubscriptionsModel.model.findById('61aa8f96e19952e4bc199cc2')
-    
-    // await subscription.delete()
+      const grouped = groupBy(mapped, 'quality')
 
-    // Find
-    // const subscription = await SubscriptionsModel.model.findOne({
-    //   channel: 'UCsJR1qQDNyFvsX_9_bNM63A',
-    //   user: 123123123
-    // }).exec()
-    // console.log(subscription.id)
+      for (const quality in grouped) {
+        grouped[quality] = grouped[quality].sort((x1, x2) => x2.contentLength - x1.contentLength)
+      }
 
-    // Mongoose.connection.close()
+      console.log(grouped)
+    } catch (error) {
+      logger(error)
+    }
   }
 }
