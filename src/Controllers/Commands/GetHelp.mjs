@@ -1,13 +1,11 @@
-import getLocale from '#@/Utils/getLocale.js'
+import Controller from '#@/Controllers/Controller.js'
 
-export default {
-  command: 'help',
+class GetHelp extends Controller {
+  command = 'help'
 
   async handler (context) {
-    const text = getLocale('commands/help')
-
-    context.reply(text, {
-      parse_mode: 'HTML'
-    })
+    context.reply(this.$loc())
   }
 }
+
+export default new GetHelp

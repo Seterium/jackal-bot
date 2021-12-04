@@ -1,11 +1,9 @@
+import Controller from '#@/Controllers/Controller.js'
 
-import { channels } from '#@/constants.js'
-import getLocale from '#@/utils/getLocale.js'
+class GetChannels extends Controller {
+  command = 'channels'
 
-export default {
-  command: 'channels',
-
-  async handler (context) {
-
-  }
+  async handler (context) {}
 }
+
+export default new GetChannels

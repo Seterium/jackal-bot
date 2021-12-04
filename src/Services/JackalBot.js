@@ -55,7 +55,7 @@ export default {
     console.log('\r\n', getLocale('jackal'), '\r\n')
   },
 
-  async initMiddleware() {
+  async initMiddleware () {
     this.bot.use(async (context, next) => {
       const { from } = context.update.callback_query || context.update.message
 
@@ -69,8 +69,12 @@ export default {
     })
   },
 
-  async initCommands() {
-    const commands = await importDirectory(`${process.env.PWD}/src/Controllers/Commands`)
+  async initCommands () {
+    const path = `${process.env.PWD}/src/Controllers/Commands`
+
+    const commands = await importDirectory(path, {
+      recursive: true
+    })
 
     const duplicates = commands.map(({ command }) => command).filter((e, index, arr) => arr.indexOf(e) !== index)
 
@@ -122,7 +126,7 @@ export default {
 
         if (command.validate) {
           try {
-            command.validate(context, params)
+            command.validate(params)
           } catch (error) {
             return context.reply(error, {
               parse_mode: 'HTML'
@@ -135,8 +139,12 @@ export default {
     })
   },
 
-  async initActions() {
-    const actionsList = await importDirectory(`${process.env.PWD}/src/Controllers/Actions`)
+  async initActions () {
+    const path = `${process.env.PWD}/src/Controllers/Actions`
+
+    const actionsList = await importDirectory(path, {
+      recursive: true
+    })
 
     const actions = {}
 
@@ -152,15 +160,11 @@ export default {
       const [ action, ...rawParams ] = context.update.callback_query.data.split('|')
 
       if (action === 'none') {
-        context.answerCbQuery('Хз че ты хотел, мне ответить нечего')
-
-        return
+        return context.answerCbQuery('Хз че ты хотел, мне ответить нечего')
       }
 
       if (!actions[action]) {
-        console.error(`Unknown action "${action}"`)
-
-        return
+        return console.error(`Unknown action "${action}"`)
       }
 
       const params = {}
@@ -195,11 +199,9 @@ export default {
 
       if (actions[action].validate) {
         try {
-          actions[action].validate(context, params)
+          actions[action].validate(params)
         } catch (error) {
-          context.answerCbQuery(error)
-
-          return
+          return context.answerCbQuery(error)
         }
       }
 

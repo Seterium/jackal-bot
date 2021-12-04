@@ -1,11 +1,11 @@
+import Controller from '#@/Controllers/Controller.js'
+
 import SubscriptionsModel from '#@/Models/Subscriptions.js'
 
-import getLocale from '#@/Utils/getLocale.js'
+class Unsubscribe extends Controller {
+  action = 'unsubscribe'
 
-export default {
-  action: 'unsubscribe',
-
-  params: {
+  params = {
     channelId: {
       type: 'string',
       required: true
@@ -14,9 +14,9 @@ export default {
       type: 'string',
       default: ''
     }
-  },
+  }
 
-  noAutoanswer: true,
+  noAutoanswer = true
 
   async handler (context, {channelId, videoId }) {
     let subscription
@@ -29,7 +29,7 @@ export default {
       
       await subscription.delete()
     } catch (error) {
-      return context.answerCbQuery(getLocale('actions/unsubscribe/errors/unableDelete'))
+      return context.answerCbQuery(this.$loc('errors/unableDelete'))
     }
 
     const keyboard = []
@@ -80,10 +80,12 @@ export default {
       )
     }
 
-    context.answerCbQuery(getLocale('actions/unsubscribe/index'))
+    context.answerCbQuery(this.$loc())
 
     context.editMessageReplyMarkup({
       inline_keyboard: keyboard
     })
   }
 }
+
+export default new Unsubscribe

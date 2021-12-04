@@ -1,13 +1,11 @@
+import Controller from '#@/Controllers/Controller.js'
+
 import SubscriptionsModel from '#@/Models/Subscriptions.js'
 
-import YtData from '#@/Services/YtData.js'
+class Subscribe extends Controller {
+  action = 'subscribe'
 
-import getLocale from '#@/Utils/getLocale.js'
-
-export default {
-  action: 'subscribe',
-
-  params: {
+  params = {
     channelId: {
       type: 'string',
       required: true
@@ -16,17 +14,17 @@ export default {
       type: 'string',
       default: ''
     }
-  },
+  }
 
-  noAutoanswer: true,
+  noAutoanswer = true
 
   async handler (context, { channelId, videoId }) {
     let channel
 
     try {
-      channel = await YtData.getChannel(channelId)
+      channel = await this.$yt.getChannel(channelId)
     } catch (error) {
-      return context.answerCbQuery(getLocale('actions/subscribe/errors/unableGetChannelData'))
+      return context.answerCbQuery(this.$loc('errors/unableGetChannelData'))
     }
 
     try {
@@ -35,7 +33,7 @@ export default {
       })
 
       if (subscriptionsCount >= +process.env.MAX_SUBSCRIPTIONS) {
-        const text = getLocale('actions/subscribe/errors/maxSubscriptionsCountReached', {
+        const text = this.$loc('errors/maxSubscriptionsCountReached', {
           max: process.env.MAX_SUBSCRIPTIONS
         })
 
@@ -44,7 +42,7 @@ export default {
         })
       }
     } catch (error) {
-      return context.answerCbQuery(getLocale('actions/subscribe/errors/unableSubscriptionsData'))
+      return context.answerCbQuery(this.$loc('errors/unableSubscriptionsData'))
     }
 
     let subscription
@@ -60,10 +58,10 @@ export default {
       
       await subscription.save()
     } catch (error) {
-      return context.answerCbQuery(getLocale('actions/subscribe/errors/unableSave'))
+      return context.answerCbQuery(this.$loc('errors/unableSave'))
     }
 
-    context.answerCbQuery(getLocale('actions/subscribe/index', {
+    context.answerCbQuery(this.$loc('index', {
       title: channel.title
     }))
 
@@ -120,3 +118,5 @@ export default {
     })
   }
 }
+
+export default new Subscribe

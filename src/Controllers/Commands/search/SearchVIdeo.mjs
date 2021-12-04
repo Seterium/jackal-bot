@@ -1,11 +1,12 @@
 import chunk from 'lodash.chunk'
 
 import YtData from '#@/Services/YtData.js'
+import Controller from '#@/Controllers/Controller.js'
 
-import getLocale from '#@/utils/getLocale.js'
+class SearchVideo extends Controller {
+  command = 'video'
 
-export default {
-  command: 'video',
+  locales = 'search'
 
   validate(context, { query }) {
     if (!query) {
@@ -21,7 +22,7 @@ export default {
     }
 
     return true
-  },
+  }
 
   async handler(context, { query }) {
     try {
@@ -33,3 +34,5 @@ export default {
     }
   }
 }
+
+export default new SearchVideo

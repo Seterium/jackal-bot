@@ -1,21 +1,21 @@
 import chunk from 'lodash.chunk'
 
-import YtData from '#@/Services/YtData.js'
+import Controller from '#@/Controllers/Controller.js'
 
-import getLocale from '#@/utils/getLocale.js'
+class SearchChannel extends Controller {
+  command = 'channel'
 
-export default {
-  command: 'channel',
+  locales = 'search'
 
-  validate(context, { query }) {
+  validate({ query }) {
     if (!query) {
-      throw getLocale('commands/channel/errors/queryRequired')
+      throw this.$loc('errors/queryRequired')
     }
 
     if (query.length < 3) {
-      throw getLocale('commands/channel/errors/queryInvalid')
+      throw this.$loc('errors/queryInvalid')
     }
-  },
+  }
 
   async handler(context, { query }) {
     let list = []
@@ -23,18 +23,18 @@ export default {
     try {
       list = await YtData.search(query, 'channel')
     } catch (error) {
-      context.reply(getLocale('commands/channel/errors/fatal'))
+      context.reply(this.$loc('errors/fatal'))
 
       return
     }
 
     if (!list.length) {
-      context.reply(getLocale('commands/channel/empty', {
+      context.reply(this.$loc('empty', {
         query
       }))
     }
 
-    const message = getLocale('commands/channel/index', {
+    const message = this.$loc('index', {
       query,
       list
     })
@@ -52,3 +52,5 @@ export default {
     })
   }
 }
+
+export default new SearchChannel

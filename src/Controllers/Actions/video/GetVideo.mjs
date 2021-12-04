@@ -1,28 +1,27 @@
-import YtData from '#@/Services/YtData.js'
+import Controller from '#@/Controllers/Controller.js'
 
 import SubscriptionsModel from '#@/Models/Subscriptions.js'
 
 import dayjs from '#@/Utils/dayjs.js'
-import getLocale from '#@/Utils/getLocale.js'
 import formatViews from '#@/Utils/formatViews.js'
 
-export default {
-  action: 'getVideo',
+class GetVideo extends Controller {
+  action = 'getVideo'
 
-  params: {
+  params = {
     id: {
       type: 'string',
       required: true
     }
-  },
+  }
   
   async handler(context, { id }) {
     let video
 
     try {
-      video = await YtData.getVideo(id)
+      video = await this.$yt.getVideo(id)
     } catch (error) {
-      return context.reply(getLocale('actions/getVideo/errors/fatal'))
+      return context.reply(this.$loc('errors/fatal'))
     }
 
     const {
@@ -45,7 +44,7 @@ export default {
     const uploaded = dayjs(published).format('DD MMM. YYYY')
     const viewsCount = formatViews(views)
 
-    const message = getLocale('actions/getVideo/index', {
+    const message = this.$loc('index', {
       ...video,
       duration: `${minutes}:${seconds}`,
       rating: ratingLabel,
@@ -106,3 +105,5 @@ export default {
     })
   }
 }
+
+export default new GetVideo

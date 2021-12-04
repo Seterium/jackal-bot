@@ -21,7 +21,7 @@ export default {
   options: [
     {
       name: '-q, --quality <value>',
-      description: 'Video quality (default: \'medium\'',
+      description: 'Video quality (default: \'medium\')',
       default: 'medium'
     },
     {

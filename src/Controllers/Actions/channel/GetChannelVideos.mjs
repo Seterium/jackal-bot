@@ -1,14 +1,15 @@
 import chunk from 'lodash.chunk'
 
-import YtData from '#@/Services/YtData.js'
+import Controller from '#@/Controllers/Controller.js'
 
-import getLocale from '#@/Utils/getLocale.js'
 import formatViews from '#@/Utils/formatViews.js'
 
-export default {
-  action: 'getChannelVideos',
+class GetChannelVideos extends Controller {
+  action = 'getChannelVideos'
 
-  params: {
+  locales = 'channel'
+
+  params = {
     id: {
       type: 'string',
       required: true,
@@ -21,27 +22,27 @@ export default {
       type: 'boolean',
       default: false
     }
-  },
+  }
 
-  noAutoanswer: true,
+  noAutoanswer = true
 
   validate(_, { page }) {
     if (page < 1) {
-      throw 'Все, дно достингнуто, дальше только рубль'
+      throw this.$loc('errors/minPage')
     }
 
     if (page > 10) {
-      throw 'Все, потолок, дальше живут драконы'
+      throw this.$loc('errors/maxPage')
     }
-  },
+  }
 
   async handler(context, { id, page, update }) {
     let result
 
     try {
-      result = await YtData.getChannelVideos(id, page)
+      result = await this.$yt.getChannelVideos(id, page)
     } catch (error) {
-      return context.reply(getLocale('actions/getChannelVideos/errors/fatal'))
+      return context.reply(this.$loc('errors/fatal'))
     }
 
     if (!result.videos.length && update) {
@@ -54,7 +55,7 @@ export default {
       views: formatViews(views)
     }))
 
-    const message = getLocale('actions/getChannelVideos/index', {
+    const message = this.$loc('index', {
       ...result,
       videos
     })
@@ -96,3 +97,5 @@ export default {
     }
   }
 }
+
+export default new GetChannelVideos

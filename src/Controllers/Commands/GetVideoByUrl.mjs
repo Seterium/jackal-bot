@@ -1,16 +1,18 @@
-import getLocale from '#@/utils/getLocale.js'
+import Controller from '#@/Controllers/Controller.js'
 
-export default {
-  command: 'url',
+class GetVideoByUrl extends Controller {
+  command = 'url'
 
-  params: {
+  params = {
     url: {
       type: 'string',
       required: true
     }
-  },
+  }
 
-  validate(context, { url }) {},
+  validate(context, { url }) {}
   
   async handler (context, { url }) {}
 }
+
+export default new GetVideoByUrl

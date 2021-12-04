@@ -1,29 +1,29 @@
-import YtData from '#@/Services/YtData.js'
+import Controller from '#@/Controllers/Controller.js'
 
 import SubscriptionsModel from '#@/Models/Subscriptions.js'
 
-import getLocale from '#@/Utils/getLocale.js'
+class GetChannel extends Controller {
+  action = 'getChannel'
 
-export default {
-  action: 'getChannel',
+  locales = 'channel'
 
-  params: {
+  params = {
     id: {
       type: 'string',
       required: true
     }
-  },
+  }
 
   async handler(context, { id }) {
     let channel
 
     try {
-      channel = await YtData.getChannel(id)
+      channel = await this.$yt.getChannel(id)
     } catch (error) {
-      return context.reply(getLocale('actions/getChannel/errors/fatal'))
+      return context.reply(this.$loc('errors/fatal'))
     }
 
-    const message = getLocale('actions/getChannel/index', {
+    const message = this.$loc('index', {
       ...channel,
       description: channel.description.length > 960 
         ? `${channel.description.slice(0, 960)} ...`
@@ -81,5 +81,7 @@ export default {
         ...params
       })
     }
-  },
+  }
 }
+
+export default new GetChannel
