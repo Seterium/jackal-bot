@@ -18,62 +18,51 @@ export const commands = [
     command: 'channels',
     description: 'Cписок сохраненных каналов'
   },
-]
-
-export const channels = [
   {
-    id: 'UCsJR1qQDNyFvsX_9_bNM63A',
-    name: 'Доктор Дью'
+    command: 'channel',
+    description: '<query> Поиск каналов'
+  },
+  {
+    command: 'video',
+    description: '<query> Поиск видео'
+  },
+  {
+    command: 'url',
+    description: '<url> Открыть видео по URL'
   }
 ]
 
-export const formatsFilter = {
-  includedQuality: [
-    'tiny',
-    'small',
-    'medium',
-    'large',
-    'hd720'
-  ],
-  includedMime: [
-    'video/mp4',
-    'video/webp'
-  ],
-  excludedItags: [
-    133,
-    134,
-    135,
-    136,
-    137,
-    138,
-    160,
-    264,
-    298,
-    299,
-    266,
-    139,
-    140,
-    141,
-    176,
-    168,
-    169,
-    170,
-    218,
-    219,
-    242,
-    243,
-    244,
-    245,
-    246,
-    247,
-    271,
-    272,
-    302,
-    303,
-    308,
-    313,
-    315,
-    171,
-    172
-  ]
-}
+export const recommendedChannels = [
+  {
+    id: 'UCsJR1qQDNyFvsX_9_bNM63A',
+    title: 'Доктор Дью'
+  },
+  {
+    id: 'UC0lT9K8Wfuc1KPqm6YjRf1A',
+    title: 'AcademeG'
+  }
+]
+
+export const availableQualities = [
+  {
+    quality: '480p',
+    compressions: [
+      30,
+      35,
+      40
+    ]
+  },
+  {
+    quality: '360p',
+    compressions: [
+      30,
+      35
+    ]
+  },
+  {
+    quality: '240p',
+    compressions: [
+      30
+    ]
+  }
+]

@@ -172,7 +172,7 @@ class JackalBot {
       const [ action, ...rawParams ] = context.update.callback_query.data.split('|')
 
       if (action === 'none') {
-        return context.answerCbQuery()
+        return context.answerCbQuery().catch()
       }
 
       if (!actions[action]) {
@@ -206,14 +206,16 @@ class JackalBot {
       }
 
       if (!actions[action].noAutoanswer) {
-        context.answerCbQuery()
+        context.answerCbQuery().catch()
       }
 
       if (actions[action].validate) {
         try {
           actions[action].validate(params)
         } catch (error) {
-          return context.answerCbQuery(error)
+          console.log(error)
+
+          return context.answerCbQuery(error).catch()
         }
       }
 

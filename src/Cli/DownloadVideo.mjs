@@ -28,10 +28,15 @@ export default {
       name: '-c, --compression <value>',
       description: 'Video compression level',
       default: 30
+    },
+    {
+      name: '-b --bitrate <value>',
+      description: 'Media bitrate (default \'higrest\'',
+      default: 'highest'
     }
   ],
 
-  async handler (id, { quality, compression }) {
+  async handler (id, { quality, compression, bitrate }) {
     const {
       USER_AGENT,
       COOKIE
@@ -61,6 +66,7 @@ export default {
         path,
         container: 'mp4',
         videoQuality: quality,
+        mediaBitrate: bitrate,
         progress: progress => {
           const rounded = Math.round(progress)
           
@@ -86,7 +92,7 @@ export default {
 
     try {
       const input = `${path}/${quality}.${filename}.mp4`
-      const output = `${path}/compressed.${quality}.${filename}.mp4`
+      const output = `${path}/compressed-${compression}.${quality}.${filename}.mp4`
 
       await new Promise((resolve, reject) => {
         ffmpeg()

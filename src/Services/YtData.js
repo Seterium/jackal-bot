@@ -1,7 +1,7 @@
+import crypto from 'crypto'
+
 import ytcog from 'ytcog'
 import miniget from 'miniget'
-
-import fs from 'fs'
 
 import formatViews from '#@/Utils/formatViews.js'
 import formatDuration from '#@/Utils/formatDuration.js'
@@ -25,16 +25,26 @@ export default {
     return this.mapVideoData(video)
   },
 
-  async getVideoFormats (id) {
+  async downloadVideo(id, videoQuality, progress) {
+    const filename = crypto.randomUUID()
+    const path = `${process.env.PWD}/public/results`
+
     const session = await this.getSession()
 
     const video = new ytcog.Video(session, {
       id
     })
+    
+    await video.download({
+      filename,
+      path,
+      videoQuality,
+      progress,
+      mediaBitrate: 'lowest',
+      container: 'mp4',
+    })
 
-    await video.fetch()
-
-    return video.formats
+    return `${path}/${filename}.mp4`
   },
 
   async getChannel(id) {
