@@ -7,8 +7,12 @@ import logger from '#@/Utils/logger.js'
 
 import { allowedUsersIds } from '#@/constants.js'
 
-export default {
-  bot: null,
+class JackalBot {
+  bot = null
+
+  actions = {}
+
+  commands = {}
 
   async init () {
     console.log('\r\n[JCB] Initialize Jackal bot\r\n')
@@ -53,11 +57,15 @@ export default {
     process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
 
     console.log('\r\n', getLocale('jackal'), '\r\n')
-  },
+  }
 
   async initMiddleware () {
     this.bot.use(async (context, next) => {
-      const { from } = context.update.callback_query || context.update.message
+      const shouldProcess = (context.update.message || context.update.callback_query) 
+
+      if (!shouldProcess) return
+
+      const { from } = context.update.callback_query || context.update.message 
 
       if (!allowedUsersIds.includes(from.id)) return
 
@@ -67,7 +75,7 @@ export default {
         return logger(error)
       }
     })
-  },
+  }
 
   async initCommands () {
     const path = `${process.env.PWD}/src/Controllers/Commands`
@@ -75,6 +83,8 @@ export default {
     const commands = await importDirectory(path, {
       recursive: true
     })
+
+    this.commands = commands
 
     const duplicates = commands.map(({ command }) => command).filter((e, index, arr) => arr.indexOf(e) !== index)
 
@@ -137,7 +147,7 @@ export default {
         command.handler(context, params)
       })
     })
-  },
+  }
 
   async initActions () {
     const path = `${process.env.PWD}/src/Controllers/Actions`
@@ -155,6 +165,8 @@ export default {
 
       actions[action.action] = action
     })
+
+    this.actions = actions
 
     this.bot.on('callback_query', async (context) => {
       const [ action, ...rawParams ] = context.update.callback_query.data.split('|')
@@ -208,4 +220,14 @@ export default {
       actions[action].handler(context, params)
     })
   }
+
+  action (action, context, params) {
+    if (!this.actions[action]) {
+      return console.error(`Unknown action "${action}"`)
+    }
+
+    this.actions[action].handler(context, params)
+  }
 }
+
+export default new JackalBot

@@ -27,24 +27,31 @@ class GetVideo extends Controller {
     }
 
     const {
-      channel,
+      channel: {
+        id: channelId
+      },
       rating: ratingRaw,
-      published,
-      views,
-      duration
+      published
     } = video
+
+    let channel
+
+    try {
+      channel = await this.$yt.getChannel(channelId)
+    } catch (error) {
+      return context.reply(this.$loc('errors/channel'))
+    }
 
     const ratingsIcons = ['🟤', '🔴', '🟠', '🟢', '🟢']
 
     const rating = ratingRaw
       ? `${ratingsIcons[Math.trunc(ratingRaw)]} ${ratingRaw.toFixed(2)}`
       : '⚫️ ???'
-
+    
     const message = this.$loc('index', {
       ...video,
-      duration,
+      channel,
       rating,
-      views: formatViews(views),
       uploaded: dayjs(published).fromNow()
     })
 
@@ -52,7 +59,7 @@ class GetVideo extends Controller {
 
     try {
       subscription = await SubscriptionsModel.model.findOne({
-        'channel.id': channel.id,
+        'channel.id': channelId,
         user: context.update.callback_query.from.id
       })
     } catch (error) {

@@ -5,6 +5,7 @@ import fs from 'fs'
 
 import formatViews from '#@/Utils/formatViews.js'
 import formatDuration from '#@/Utils/formatDuration.js'
+import formatSubscribersCount from '#@/Utils/formatSubscribersCount.js'
 
 export default {
   searchTypes: {
@@ -51,12 +52,19 @@ export default {
       description
     } = channel
 
-    const cover = data[0]?.header.c4TabbedHeaderRenderer?.banner?.thumbnails[0].url
+    const cover = data[0]?.header?.c4TabbedHeaderRenderer?.banner?.thumbnails[0].url
+
+    let subscribers = data[0]?.header?.c4TabbedHeaderRenderer?.subscriberCountText?.simpleText
+    
+    subscribers = subscribers
+      ? formatSubscribersCount(subscribers)
+      : 'неизвестно'
 
     return {
       id,
       title: author,
       cover,
+      subscribers,
       description
     }
   },
