@@ -27,6 +27,12 @@ class GetVideoFile extends Controller {
   noAutoanswer = true
 
   async handler(context, { id, quality, compression }) {
+    if (context.update.callback_query.from.id !== 14112294) {
+      return context.answerCbQuery('На время альфа-тестирования скачивание видео недоступно', {
+        show_alert: true
+      })
+    }
+    
     const initMessageText = this.$loc('progress', {
       downloading: {
         percent: '0',

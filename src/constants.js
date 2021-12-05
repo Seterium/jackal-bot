@@ -1,9 +1,9 @@
 export const allowedUsersIds = [
   // @Ameroid
-  // 1348870840,
+  1348870840,
 
   // @fyshi
-  // 43161367,
+  43161367,
 
   // @LazarusNucleros
   141122941
@@ -12,23 +12,23 @@ export const allowedUsersIds = [
 export const commands = [
   {
     command: 'help',
-    description: 'Справка по использованию бота'
+    description: 'Справка'
   },
   {
-    command: 'channels',
-    description: 'Cписок сохраненных каналов'
+    command: 'subscriptions',
+    description: 'Cписок подписок'
   },
   {
     command: 'channel',
-    description: '<query> Поиск каналов'
+    description: 'Поиск каналов'
   },
   {
     command: 'video',
-    description: '<query> Поиск видео'
+    description: 'Поиск видео'
   },
   {
     command: 'url',
-    description: '<url> Открыть видео по URL'
+    description: 'Открыть видео по URL'
   }
 ]
 

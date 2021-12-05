@@ -20,7 +20,12 @@ class Unsubscribe extends Controller {
 
   noAutoanswer = true
 
-  async handler (context, {channelId, videoId }) {
+  async handler (context, { channelId, videoId }) {
+    console.log({
+      'channel.id': channelId,
+      user: context.update.callback_query.from.id
+    })
+
     let subscription
 
     try {

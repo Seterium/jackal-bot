@@ -91,6 +91,10 @@ class Subscribe extends Controller {
           {
             text: '📦 Скачать',
             callback_data: `getVideoFormats|${videoId}`
+          },
+          {
+            text: '◀️ Назад',
+            callback_data: 'removePrevMessage'
           }
         ]
       )

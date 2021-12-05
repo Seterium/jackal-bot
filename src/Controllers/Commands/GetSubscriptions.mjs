@@ -6,8 +6,8 @@ import SubscriptionsModel from '#@/Models/Subscriptions.js'
 
 import { recommendedChannels } from '#@/constants.js'
 
-class GetChannels extends Controller {
-  command = 'channels'
+class GetSubscriptions extends Controller {
+  command = 'subscriptions'
 
   async handler (context) {
     let subscriptions
@@ -47,4 +47,4 @@ class GetChannels extends Controller {
   }
 }
 
-export default new GetChannels
+export default new GetSubscriptions

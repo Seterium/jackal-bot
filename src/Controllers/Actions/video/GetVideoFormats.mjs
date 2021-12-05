@@ -14,6 +14,8 @@ class GetVideoFormats extends Controller {
     }
   }
 
+  noAutoanswer = true
+
   async handler (context, { id }) {
     const keyboard = availableQualities.map(({ quality, compressions }) => {
       const buttons = [{

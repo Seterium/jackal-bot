@@ -3,6 +3,7 @@ import importDirectory from 'esm-import-directory'
 import cast from 'cast'
 
 import getLocale from '#@/Utils/getLocale.js'
+import dayjs from '#@/Utils/dayjs.js'
 import logger from '#@/Utils/logger.js'
 
 import { allowedUsersIds } from '#@/constants.js'
@@ -15,16 +16,18 @@ class JackalBot {
   commands = {}
 
   async init () {
-    console.log('\r\n[JCB] Initialize Jackal bot\r\n')
+    console.log('\r\n')
+    
+    this.log('Initialize Jackal bot')
 
     this.bot = new Telegraf(process.env.BOT_TOKEN)
 
     try {
       await this.initMiddleware()
 
-      console.log('[JCB] Middleware initialized')
+      this.log('Middleware initialized')
     } catch (error) {
-      console.log('[JCB] Middleware initialization error')
+      this.log('Middleware initialization error')
 
       return logger(error)
     }
@@ -32,9 +35,9 @@ class JackalBot {
     try {
       await this.initCommands()
 
-      console.log('[JCB] Commands handlers initialized')
+      this.log('Commands handlers initialized')
     } catch (error) {
-      console.log('[JCB] Commands handlers initialization error')
+      this.log('Commands handlers initialization error')
 
       return logger(error)
     }
@@ -42,16 +45,16 @@ class JackalBot {
     try {
       await this.initActions()
 
-      console.log('[JCB] Callback actions handlers initialized')
+      this.log('Callback actions handlers initialized')
     } catch (error) {
-      console.log('[JCB] Callback actions handlers initialization error')
+      this.log('Callback actions handlers initialization error')
 
       return logger(error)
     }
     
     this.bot.launch()
 
-    console.log('\r\n[JCB] Jackal bot initialized')
+    this.log('Jackal bot initialized')
 
     process.once('SIGINT', () => this.bot.stop('SIGINT'))
     process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
@@ -89,7 +92,7 @@ class JackalBot {
     const duplicates = commands.map(({ command }) => command).filter((e, index, arr) => arr.indexOf(e) !== index)
 
     if (duplicates.length) {
-      throw new Error(`Duplicate handlers for command(s) "${duplicates.join(', ')}" found`)
+      this.log(`Duplicate handlers for command(s) "${duplicates.join(', ')}" found`, true)
     }
 
     commands.forEach((command) => {  
@@ -109,6 +112,16 @@ class JackalBot {
               type = 'string',
               default: def
             } = command.params[key]
+
+            if (!context.update.message.entities[index]) {
+              const text = getLocale(`commands/validation/required`, {
+                key
+              })
+
+              return context.reply(text, {
+                parse_mode: 'HTML'
+              })
+            }
 
             const { offset, length } = context.update.message.entities[index]
             const paramValue = context.update.message.text.substring(offset, offset + length)
@@ -133,6 +146,9 @@ class JackalBot {
   
           params.query = context.update.message.text.substring(offset + length + 1, text.length).trim()
         }
+
+        console.log(`Income command: "${command.command}", from @${context.update.message.from.username} [ID:${context.update.message.from.id}]`)
+        console.log(`Params: ${JSON.stringify(params)}\r\n`)
 
         if (command.validate) {
           try {
@@ -205,6 +221,8 @@ class JackalBot {
         }
       }
 
+      console.log(`[JCB] ${context.update.callback_query.from.id} (@${context.update.callback_query.from.username}), action "${action}", with params: ${JSON.stringify(params)}`)
+
       if (!actions[action].noAutoanswer) {
         context.answerCbQuery().catch()
       }
@@ -213,8 +231,6 @@ class JackalBot {
         try {
           actions[action].validate(params)
         } catch (error) {
-          console.log(error)
-
           return context.answerCbQuery(error).catch()
         }
       }
@@ -225,10 +241,20 @@ class JackalBot {
 
   action (action, context, params) {
     if (!this.actions[action]) {
-      return console.error(`Unknown action "${action}"`)
+      return this.log(`Unknown action "${action}"`)
     }
 
     this.actions[action].handler(context, params)
+  }
+
+  log (text, error = false) {
+    const log = `[${dayjs().format('DD.MM.YYYY HH:mm:ss')}][JCB] ${text}`
+    
+    if (error) {
+      console.error(log)
+    } else {
+      console.log(log)
+    }
   }
 }
 
