@@ -27,7 +27,7 @@ class GetVideoByUrl extends Controller {
       })
     }
 
-    this.$jc.action('getVideo', context, {
+    this.$jc.runAction('getVideo', context, {
       id
     })
   }

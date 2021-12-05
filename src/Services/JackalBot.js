@@ -3,7 +3,6 @@ import importDirectory from 'esm-import-directory'
 import cast from 'cast'
 
 import getLocale from '#@/Utils/getLocale.js'
-import dayjs from '#@/Utils/dayjs.js'
 import logger from '#@/Utils/logger.js'
 
 import { allowedUsersIds } from '#@/constants.js'
@@ -13,48 +12,36 @@ class JackalBot {
 
   actions = {}
 
-  commands = {}
+  commands = []
 
   async init () {
-    console.log('\r\n')
-    
-    this.log('Initialize Jackal bot')
-
     this.bot = new Telegraf(process.env.BOT_TOKEN)
 
     try {
       await this.initMiddleware()
 
-      this.log('Middleware initialized')
+      $jcb.log('Middleware initialized')
     } catch (error) {
-      this.log('Middleware initialization error')
-
-      return logger(error)
+      return $jcb.log('Middleware initialization error', error)
     }
 
     try {
       await this.initCommands()
 
-      this.log('Commands handlers initialized')
+      $jcb.log('Commands handlers initialized')
     } catch (error) {
-      this.log('Commands handlers initialization error')
-
-      return logger(error)
+      return $jcb.log('Commands handlers initialization error', error)
     }
     
     try {
       await this.initActions()
 
-      this.log('Callback actions handlers initialized')
+      $jcb.log('Callback actions handlers initialized')
     } catch (error) {
-      this.log('Callback actions handlers initialization error')
-
-      return logger(error)
+      return $jcb.log('Callback actions handlers initialization error', error)
     }
     
     this.bot.launch()
-
-    this.log('Jackal bot initialized')
 
     process.once('SIGINT', () => this.bot.stop('SIGINT'))
     process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
@@ -83,19 +70,21 @@ class JackalBot {
   async initCommands () {
     const path = `${process.env.PWD}/src/Controllers/Commands`
 
-    const commands = await importDirectory(path, {
+    this.commands = await importDirectory(path, {
       recursive: true
     })
 
-    this.commands = commands
-
-    const duplicates = commands.map(({ command }) => command).filter((e, index, arr) => arr.indexOf(e) !== index)
+    const duplicates = this.commands.map(({ command }) => command).filter((e, index, arr) => arr.indexOf(e) !== index)
 
     if (duplicates.length) {
-      this.log(`Duplicate handlers for command(s) "${duplicates.join(', ')}" found`, true)
+      return $jcb.log(`Duplicate handlers for command(s) "${duplicates.join(', ')}" found`)
     }
 
-    commands.forEach((command) => {  
+    this.setCommandsHandlers()
+  }
+
+  setCommandsHandlers () {
+    this.commands.forEach((command) => {  
       this.bot.command(command.command, context => {  
         const { entities } = context.update.message
 
@@ -147,13 +136,19 @@ class JackalBot {
           params.query = context.update.message.text.substring(offset + length + 1, text.length).trim()
         }
 
-        console.log(`Income command: "${command.command}", from @${context.update.message.from.username} [ID:${context.update.message.from.id}]`)
-        console.log(`Params: ${JSON.stringify(params)}\r\n`)
+        const {
+          username,
+          id
+        } = context.update.message.from
+  
+        $jcb.log(`Income command: "${command.command}", from @${username} [ID:${id}], params: ${JSON.stringify(params, null, 2)}`)
 
         if (command.validate) {
           try {
             command.validate(params)
           } catch (error) {
+            $jcb.log(`Income command: "${command.command}", from @${username} [ID:${id}], validation error: ${JSON.stringify({ error }, null, 2)}`)
+
             return context.reply(error, {
               parse_mode: 'HTML'
             })
@@ -168,22 +163,22 @@ class JackalBot {
   async initActions () {
     const path = `${process.env.PWD}/src/Controllers/Actions`
 
-    const actionsList = await importDirectory(path, {
+    const actions = await importDirectory(path, {
       recursive: true
     })
 
-    const actions = {}
-
-    actionsList.forEach((action) => {
-      if (actions[action.action]) {
-        throw new Error(`Duplicate handlers for action "${action.name}" found`)
+    actions.forEach((action) => {
+      if (this.actions[action.action]) {
+        return $jcb.log(`Duplicate handlers for action "${action.action}" found`)
       }
 
-      actions[action.action] = action
+      this.actions[action.action] = action
     })
 
-    this.actions = actions
+    this.setActionsHandlers()
+  }
 
+  setActionsHandlers () {
     this.bot.on('callback_query', async (context) => {
       const [ action, ...rawParams ] = context.update.callback_query.data.split('|')
 
@@ -192,7 +187,7 @@ class JackalBot {
       }
 
       if (!actions[action]) {
-        return console.error(`Unknown action "${action}"`)
+        return $jcb.log(`Unknown action "${action}"`, true)
       }
 
       const params = {}
@@ -212,7 +207,9 @@ class JackalBot {
           if (paramValue) {
             params[key] = cast(paramValue, type)
           } else if (required) {
-            throw new Error(`Missing required param ${key} in action ${action}`)
+            const error = `Missing required param ${key} in action ${action}`
+
+            return $jcb.log(`Income action: "${command.command}", from @${username} [ID:${id}], validation error: ${JSON.stringify({ error }, null, 2)}`)
           } else {
             params[key] = def
           }
@@ -221,7 +218,12 @@ class JackalBot {
         }
       }
 
-      console.log(`[JCB] ${context.update.callback_query.from.id} (@${context.update.callback_query.from.username}), action "${action}", with params: ${JSON.stringify(params)}`)
+      const {
+        username,
+        id
+      } = context.update.callback_query.from
+
+      $jcb.log(`Income action: "${action}", from @${username} [ID:${id}], params: ${JSON.stringify(params, null, 2)}`)
 
       if (!actions[action].noAutoanswer) {
         context.answerCbQuery().catch()
@@ -239,22 +241,12 @@ class JackalBot {
     })
   }
 
-  action (action, context, params) {
+  runAction (action, context, params) {
     if (!this.actions[action]) {
-      return this.log(`Unknown action "${action}"`)
+      return $jcb.log(`Unknown action "${action}"`)
     }
 
     this.actions[action].handler(context, params)
-  }
-
-  log (text, error = false) {
-    const log = `[${dayjs().format('DD.MM.YYYY HH:mm:ss')}][JCB] ${text}`
-    
-    if (error) {
-      console.error(log)
-    } else {
-      console.log(log)
-    }
   }
 }
 

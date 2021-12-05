@@ -1,9 +1,9 @@
 export const allowedUsersIds = [
   // @Ameroid
-  1348870840,
+  // 1348870840,
 
   // @fyshi
-  43161367,
+  // 43161367,
 
   // @LazarusNucleros
   141122941

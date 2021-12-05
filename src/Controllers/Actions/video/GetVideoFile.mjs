@@ -32,15 +32,17 @@ class GetVideoFile extends Controller {
         show_alert: true
       })
     }
+
+    const progressbar = new Array(10).fill('⬜️').join('')
     
     const initMessageText = this.$loc('progress', {
       downloading: {
         percent: '0',
-        progressbar: '⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️'
+        progressbar
       },
       compression: {
         percent: '0',
-        progressbar: '⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️'
+        progressbar
       }
     })
 
@@ -66,13 +68,18 @@ class GetVideoFile extends Controller {
         const text = this.$loc('progress', {
           downloading: {
             percent: downloadPercent,
-            progressbar: [...new Array(downloadPercent / 10).fill('🟩'), ...new Array((100 - downloadPercent) / 10).fill('⬜️')].join('')
+            progressbar: [
+              ...new Array(downloadPercent / 10).fill('🟩'),
+              ...new Array((100 - downloadPercent) / 10).fill('⬜️')
+            ].join('')
           },
           compression: {
             percent: '0',
             progressbar: '⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️'
           }
         })
+
+        $jcb.log(`Downloading video ID:${id} (q:${quality}, c:${compression}), progress: ${downloadPercent}%`)
 
         context.tg.editMessageText(chatId, messageId, null, text, {
           parse_mode: 'HTML'
@@ -103,9 +110,14 @@ class GetVideoFile extends Controller {
           },
           compression: {
             percent: optimizedPercent,
-            progressbar: [...new Array(optimizedPercent / 10).fill('🟩'), ...new Array((100 - optimizedPercent) / 10).fill('⬜️')].join('')
+            progressbar: [
+              ...new Array(optimizedPercent / 10).fill('🟩'),
+              ...new Array((100 - optimizedPercent) / 10).fill('⬜️')
+            ].join('')
           }
         })
+
+        $jcb.log(`Compressing video ID:${id} (q:${quality}, c:${compression}), progress: ${optimizedPercent}%`)
 
         context.tg.editMessageText(chatId, messageId, null, text, {
           parse_mode: 'HTML'

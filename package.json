@@ -1,10 +1,14 @@
 {
   "name": "jackal-bot",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "jackal.js",
   "license": "MIT",
+  "engines": {
+    "node": "16.13.x"
+  },
   "scripts": {
+    "start": "node jackal.js",
     "dev": "nodemon jackal.js"
   },
   "bin": {
@@ -13,8 +17,14 @@
   "imports": {
     "#@/*": "./src/*"
   },
+  "nodemonConfig": {
+    "ignore": ["public/*"],
+    "delay": 2500
+  },
   "dependencies": {
+    "@sentry/node": "^6.15.0",
     "cast": "^1.1.0",
+    "chalk": "^5.0.0",
     "commander": "^8.3.0",
     "dayjs": "^1.10.7",
     "dotenv": "^10.0.0",

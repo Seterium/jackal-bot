@@ -3,5 +3,7 @@ export default {
 
   description: 'Feature testing command',
 
-  async handler () {}
+  async handler () {
+    $mongoose.connection.close()
+  }
 }
