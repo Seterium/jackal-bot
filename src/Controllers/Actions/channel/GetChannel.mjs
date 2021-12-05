@@ -25,7 +25,7 @@ class GetChannel extends Controller {
 
     const message = this.$loc('index', {
       ...channel,
-      description: channel.description.length > 960 
+      description: channel.description.length > 960
         ? `${channel.description.slice(0, 960)} ...`
         : channel.description
     })
@@ -42,7 +42,7 @@ class GetChannel extends Controller {
     const keyboard = [
       [
         {
-          text: subscription 
+          text: subscription
             ? '➖ Отписаться'
             : '➕ Подписаться',
           callback_data: subscription

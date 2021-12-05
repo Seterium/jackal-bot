@@ -8,6 +8,7 @@
     "node": "16.13.x"
   },
   "scripts": {
+    "lint": "eslint",
     "start": "node jackal.js",
     "dev": "nodemon jackal.js"
   },
@@ -18,7 +19,9 @@
     "#@/*": "./src/*"
   },
   "nodemonConfig": {
-    "ignore": ["public/*"],
+    "ignore": [
+      "public/*"
+    ],
     "delay": 2500
   },
   "dependencies": {
@@ -40,6 +43,8 @@
     "ytcog": "^2.2.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "eslint": "^8.4.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1"
   }
 }

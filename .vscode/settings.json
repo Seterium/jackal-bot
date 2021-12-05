@@ -1,0 +1,12 @@
+{
+  "eslint.packageManager": "yarn",
+  "eslint.validate": [
+    "javascript"
+  ],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "prettier.configPath": ".prettierrc",
+  "eslint.enable": true
+}
