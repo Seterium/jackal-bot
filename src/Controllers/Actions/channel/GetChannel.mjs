@@ -30,14 +30,12 @@ class GetChannel extends Controller {
         : channel.description
     })
 
-    let subscription = false
+    const subscription = SubscriptionsModel.isUserSubscribedToChannel(
+      context.update.callback_query.from.id,
+      id
+    )
 
-    try {
-      subscription = await SubscriptionsModel.model.findOne({
-        'channel.id': id,
-        user: context.update.callback_query.from.id
-      })
-    } catch (error) {}
+    console.log(subscription)
 
     const keyboard = [
       [

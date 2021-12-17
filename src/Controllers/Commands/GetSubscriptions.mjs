@@ -12,13 +12,9 @@ class GetSubscriptions extends Controller {
   async handler (context) {
     let subscriptions
 
-    try {
-      subscriptions = await SubscriptionsModel.model.find({
-        user: context.message.from.id
-      })
-    } catch (error) {
-      return context.reply(this.$loc('errors/fatal'))
-    }
+    subscriptions = SubscriptionsModel.getUserSubscriptions(
+      context.message.from.id
+    )
 
     if (!subscriptions.length) {
       const keyboard = recommendedChannels.map(({ id, title }) => ({

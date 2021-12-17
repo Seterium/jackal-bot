@@ -29,39 +29,27 @@ class Subscribe extends Controller {
       return context.answerCbQuery(this.$loc('errors/unableGetChannelData'))
     }
 
-    try {
-      const subscriptionsCount = await SubscriptionsModel.model.count({
-        user: context.update.callback_query.from.id
+    const count = SubscriptionsModel.getUserSubscriptions(
+      context.update.callback_query.from.id
+    ).length
+
+    if (count >= +process.env.MAX_SUBSCRIPTIONS) {
+      const text = this.$loc('errors/unableAddMore', {
+        max: process.env.MAX_SUBSCRIPTIONS
       })
 
-      if (subscriptionsCount >= +process.env.MAX_SUBSCRIPTIONS) {
-        const text = this.$loc('errors/maxSubscriptionsCountReached', {
-          max: process.env.MAX_SUBSCRIPTIONS
-        })
-
-        return context.answerCbQuery(text, {
-          show_alert: true
-        })
-      }
-    } catch (error) {
-      return context.answerCbQuery(this.$loc('errors/unableSubscriptionsData'))
-    }
-
-    let subscription
-
-    try {
-      subscription = new SubscriptionsModel.model({
-        channel: {
-          id: channel.id,
-          title: channel.title
-        },
-        user: context.update.callback_query.from.id
+      return context.answerCbQuery(text, {
+        show_alert: true
       })
-      
-      await subscription.save()
-    } catch (error) {
-      return context.answerCbQuery(this.$loc('errors/unableSave'))
     }
+
+    SubscriptionsModel.add({
+      channel: {
+        id: channel.id,
+        title: channel.title
+      },
+      user: context.update.callback_query.from.id
+    })
 
     context.answerCbQuery(this.$loc('index', {
       title: channel.title

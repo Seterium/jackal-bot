@@ -3,7 +3,6 @@ import Controller from '#@/Controllers/Controller.js'
 import SubscriptionsModel from '#@/Models/Subscriptions.js'
 
 import dayjs from '#@/Utils/dayjs.js'
-import formatViews from '#@/Utils/formatViews.js'
 
 class GetVideo extends Controller {
   action = 'getVideo'
@@ -16,7 +15,7 @@ class GetVideo extends Controller {
       required: true
     }
   }
-  
+
   async handler(context, { id }) {
     let video
 
@@ -47,7 +46,7 @@ class GetVideo extends Controller {
     const rating = ratingRaw
       ? `${ratingsIcons[Math.trunc(ratingRaw)]} ${ratingRaw.toFixed(2)}`
       : '⚫️ ???'
-    
+
     const message = this.$loc('index', {
       ...video,
       channel,
@@ -55,16 +54,11 @@ class GetVideo extends Controller {
       uploaded: dayjs(published).fromNow()
     })
 
-    let subscription
 
-    try {
-      subscription = await SubscriptionsModel.model.findOne({
-        'channel.id': channelId,
-        user: context.update.callback_query.from.id
-      })
-    } catch (error) {
-      subscription = false
-    }
+    const subscription = SubscriptionsModel.isUserSubscribedToChannel(
+      context.update.callback_query.from.id,
+      channelId
+    )
 
     const cover = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
 
@@ -77,7 +71,7 @@ class GetVideo extends Controller {
       ],
       [
         {
-          text: subscription 
+          text: subscription
             ? '➖ Отписаться'
             : '➕ Подписаться',
           callback_data: subscription
@@ -102,7 +96,7 @@ class GetVideo extends Controller {
         }
       ]
     ]
-    
+
     context.replyWithPhoto(cover, {
       caption: message,
       parse_mode: 'HTML',

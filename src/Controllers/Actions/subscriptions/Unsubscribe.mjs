@@ -21,23 +21,15 @@ class Unsubscribe extends Controller {
   noAutoanswer = true
 
   async handler (context, { channelId, videoId }) {
-    console.log({
-      'channel.id': channelId,
-      user: context.update.callback_query.from.id
-    })
+    const subscription = SubscriptionsModel.getSubscription(
+      context.update.callback_query.from.id,
+      channelId
+    )
 
-    let subscription
-
-    try {
-      subscription = await SubscriptionsModel.model.findOne({
-        'channel.id': channelId,
-        user: context.update.callback_query.from.id
-      })
-      
-      await subscription.delete()
-    } catch (error) {
-      return context.answerCbQuery(this.$loc('errors/unableDelete'))
-    }
+    SubscriptionsModel.delete(
+      context.update.callback_query.from.id,
+      channelId
+    )
 
     const keyboard = []
 
