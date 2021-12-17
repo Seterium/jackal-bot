@@ -32,7 +32,7 @@ class JackalBot {
     } catch (error) {
       return $jcb.log('Commands handlers initialization error', error)
     }
-    
+
     try {
       await this.initActions()
 
@@ -40,7 +40,7 @@ class JackalBot {
     } catch (error) {
       return $jcb.log('Callback actions handlers initialization error', error)
     }
-    
+
     this.bot.launch()
 
     process.once('SIGINT', () => this.bot.stop('SIGINT'))
@@ -51,11 +51,11 @@ class JackalBot {
 
   async initMiddleware () {
     this.bot.use(async (context, next) => {
-      const shouldProcess = (context.update.message || context.update.callback_query) 
+      const shouldProcess = (context.update.message || context.update.callback_query)
 
       if (!shouldProcess) return
 
-      const { from } = context.update.callback_query || context.update.message 
+      const { from } = context.update.callback_query || context.update.message
 
       if (!allowedUsersIds.includes(from.id)) return
 
@@ -84,12 +84,12 @@ class JackalBot {
   }
 
   setCommandsHandlers () {
-    this.commands.forEach((command) => {  
-      this.bot.command(command.command, context => {  
+    this.commands.forEach((command) => {
+      this.bot.command(command.command, context => {
         const { entities } = context.update.message
 
         const params = {}
-  
+
         if (command.params) {
           entities.shift()
 
@@ -132,7 +132,7 @@ class JackalBot {
         } else {
           const { offset, length } = entities[0]
           const { text } = context.update.message
-  
+
           params.query = context.update.message.text.substring(offset + length + 1, text.length).trim()
         }
 
@@ -140,7 +140,7 @@ class JackalBot {
           username,
           id
         } = context.update.message.from
-  
+
         $jcb.log(`Income command: "${command.command}", from @${username} [ID:${id}], params: ${JSON.stringify(params, null, 2)}`)
 
         if (command.validate) {
@@ -186,21 +186,21 @@ class JackalBot {
         return context.answerCbQuery().catch()
       }
 
-      if (!actions[action]) {
+      if (!this.actions[action]) {
         return $jcb.log(`Unknown action "${action}"`, true)
       }
 
       const params = {}
 
-      if (actions[action].params) {
+      if (this.actions[action].params) {
         let index = 0
 
-        for (let key in actions[action].params) {
+        for (let key in this.actions[action].params) {
           const {
             required,
             type = 'string',
             default: def
-          } = actions[action].params[key]
+          } = this.actions[action].params[key]
 
           const paramValue = rawParams[index]
 
@@ -225,19 +225,19 @@ class JackalBot {
 
       $jcb.log(`Income action: "${action}", from @${username} [ID:${id}], params: ${JSON.stringify(params, null, 2)}`)
 
-      if (!actions[action].noAutoanswer) {
+      if (!this.actions[action].noAutoanswer) {
         context.answerCbQuery().catch()
       }
 
-      if (actions[action].validate) {
+      if (this.actions[action].validate) {
         try {
-          actions[action].validate(params)
+          this.actions[action].validate(params)
         } catch (error) {
           return context.answerCbQuery(error).catch()
         }
       }
 
-      actions[action].handler(context, params)
+      this.actions[action].handler(context, params)
     })
   }
 

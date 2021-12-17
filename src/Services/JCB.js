@@ -18,7 +18,7 @@ export default {
 
     global.$jcb = $jcb
 
-    this.initSentry()
+    // this.initSentry()
   },
 
   initSentry() {
@@ -28,7 +28,7 @@ export default {
         tracesSampleRate: 1.0,
         debug: process.env.DEBUG === '1'
       });
-  
+
       $jcb.log('Sentry service initialized')
     } catch (error) {
       $jcb.log('Sentry service initialization error', true)

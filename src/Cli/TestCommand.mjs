@@ -4,6 +4,6 @@ export default {
   description: 'Feature testing command',
 
   async handler () {
-    $mongoose.connection.close()
+
   }
 }

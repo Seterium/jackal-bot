@@ -34,7 +34,7 @@ export default {
     const video = new ytcog.Video(session, {
       id
     })
-    
+
     await video.download({
       filename,
       path,
@@ -65,7 +65,7 @@ export default {
     const cover = data[0]?.header?.c4TabbedHeaderRenderer?.banner?.thumbnails[0].url
 
     let subscribers = data[0]?.header?.c4TabbedHeaderRenderer?.subscriberCountText?.simpleText
-    
+
     subscribers = subscribers
       ? formatSubscribersCount(subscribers)
       : 'неизвестно'
@@ -114,9 +114,9 @@ export default {
       USER_AGENT,
       COOKIE
     } = process.env
-  
+
     const session = new ytcog.Session(USER_AGENT, COOKIE)
-  
+
     await session.fetch()
 
     return session
@@ -164,6 +164,7 @@ export default {
       },
       cover: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
       duration: formatDuration(duration, 'full'),
+      durationRaw: duration,
       views: formatViews(views),
       rating,
       published

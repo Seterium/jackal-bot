@@ -2,7 +2,9 @@ import fs from 'fs'
 
 import Controller from '#@/Controllers/Controller.js'
 
+import getVideoPartsTiming from '#@/Utils/getVideoPartsTiming.js'
 import compressVideo from '#@/Utils/compressVideo.js'
+import getVideoPart from '#@/Utils/getVideoPart.js'
 
 class GetVideoFile extends Controller {
   action = 'getVideoFile'
@@ -27,14 +29,26 @@ class GetVideoFile extends Controller {
   noAutoanswer = true
 
   async handler(context, { id, quality, compression }) {
-    if (context.update.callback_query.from.id !== 14112294) {
-      return context.answerCbQuery('На время альфа-тестирования скачивание видео недоступно', {
-        show_alert: true
-      })
+    // if (context.update.callback_query.from.id !== 14112294) {
+    //   return context.answerCbQuery('На время альфа-тестирования скачивание видео недоступно', {
+    //     show_alert: true
+    //   })
+    // }
+
+    let name
+    let duration
+
+    try {
+      const { title, durationRaw } = await this.$yt.getVideo(id)
+
+      name = title
+      duration = durationRaw
+    } catch (error) {
+      return context.reply(this.$loc('errors/unableGetVideo'))
     }
 
     const progressbar = new Array(10).fill('⬜️').join('')
-    
+
     const initMessageText = this.$loc('progress', {
       downloading: {
         percent: '0',
@@ -135,15 +149,40 @@ class GetVideoFile extends Controller {
 
     fs.unlinkSync(downloaded)
 
-    const video = {
-      source: fs.createReadStream(optimized)
+    const { size } = fs.statSync(optimized)
+
+    if (size > process.env.MAX_VIDEO_FILESIZE) {
+      const parts = getVideoPartsTiming(size, duration)
+
+      for (let index = 0; index < parts.length; index += 1) {
+        const { start, end } = parts[index];
+
+        const video = await getVideoPart(optimized, start, end)
+
+        await context.replyWithVideo({ source: fs.createReadStream(video) }, {
+          thumb: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+          disable_notification: Boolean(index),
+          caption: this.$loc('part', {
+            name,
+            current: index + 1,
+            total: parts.length
+          }),
+          parse_mode: 'HTML'
+        })
+
+        fs.unlinkSync(video)
+      }
+    } else {
+      await context.replyWithVideo({ source: fs.createReadStream(optimized) }, {
+        thumb: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+        caption: this.$loc('index', {
+          name
+        }),
+        parse_mode: 'HTML'
+      })
     }
 
-    context.replyWithVideo(video, {
-      thumb: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-      caption: this.$loc(),
-      parse_mode: 'HTML'
-    })
+    fs.unlinkSync(optimized)
   }
 }
 
