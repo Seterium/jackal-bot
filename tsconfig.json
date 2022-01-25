@@ -1,0 +1,23 @@
+{
+  "include": [
+		"./app/*.ts",
+    "./index.ts",
+    "lux"
+  ],
+  "files": [
+    "./@types/index.d.ts"
+  ],
+	"exclude": [],
+	"compilerOptions": {
+		"outDir": "build",
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@types": [
+        "./@types/index.d.ts"
+      ]
+    }
+	}
+}
